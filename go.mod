@@ -1,3 +1,3 @@
-module github.com/dogmatiq/GITHUB_REPO_NAME
+module github.com/dogmatiq/dissolve
 
-go 1.15
+go 1.17
