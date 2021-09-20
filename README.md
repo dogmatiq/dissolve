@@ -6,7 +6,7 @@
 [![Documentation](https://img.shields.io/badge/go.dev-reference-007d9c)](https://pkg.go.dev/github.com/dogmatiq/dissolve)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dogmatiq/dissolve)](https://goreportcard.com/report/github.com/dogmatiq/dissolve)
 
-Dissolve is a [DNS-SD](https://tools.ietf.org/html/rfc6763) and [Multicast
+Dissolve is a [DNS-SD](https://tools.ietf.org/html/rfc6763), [Multicast
 DNS](https://tools.ietf.org/html/rfc6762) and Zeroconf/Bonjour toolkit for Go.
 
 - DNS-SD is a method of using a standard set of DNS records to describe network
