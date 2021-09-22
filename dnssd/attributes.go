@@ -23,7 +23,7 @@ import (
 // SHOULD NOT be longer than 9 characters. The characters of a key MUST be
 // printable US-ASCII values (0x20-0x7E), excluding '=' (0x3D).
 //
-// See https://tools.ietf.org/html/rfc6763#section-6.1
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-6.1
 //
 // Attributes is not safe for concurrent use without synchronization.
 type Attributes struct {
@@ -168,7 +168,7 @@ func (a *Attributes) ToTXT() []string {
 
 	for k, v := range a.m {
 		if v == nil {
-			// https://tools.ietf.org/html/rfc6763#section-6.4
+			// https://datatracker.ietf.org/doc/html/rfc6763#section-6.4
 			//
 			// If there is no '=' in a DNS-SD TXT record string, then it is a
 			// boolean attribute, simply identified as being present, with no
@@ -185,7 +185,7 @@ func (a *Attributes) ToTXT() []string {
 // mustNormalizeAttributeKey normalizes the DNS-SD TXT key, k, or panics if it
 // can not be normalized.
 //
-// See https://tools.ietf.org/html/rfc6763#section-6.4
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-6.4
 func mustNormalizeAttributeKey(k string) string {
 	k, err := normalizeAttributeKey(k)
 	if err != nil {
@@ -198,7 +198,7 @@ func mustNormalizeAttributeKey(k string) string {
 // normalizeAttributeKey normalizes the DNS-SD TXT key, k, or returns an error
 // if it can not be normalized.
 //
-// See https://tools.ietf.org/html/rfc6763#section-6.4
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-6.4
 func normalizeAttributeKey(k string) (string, error) {
 	if k == "" {
 		return "", errors.New("key must not be empty")
@@ -209,7 +209,7 @@ func normalizeAttributeKey(k string) (string, error) {
 	for i := 0; i < len(k); i++ {
 		ch := k[i]
 
-		// https://tools.ietf.org/html/rfc6763#section-6.4
+		// https://datatracker.ietf.org/doc/html/rfc6763#section-6.4
 		//
 		// The characters of a key MUST be printable US-ASCII values (0x20-0x7E)
 		// [RFC20], excluding '=' (0x3D).
