@@ -72,7 +72,7 @@ type Instance struct {
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1 for a
 // description of how fully-qualified service names are structured.
 func (i Instance) FullyQualifiedName() string {
-	return EscapeInstanceName(i.Name) + "." + InstanceEnumDomain(i.Service, i.Domain)
+	return EscapeInstanceName(i.Name) + "." + InstanceEnumerationDomain(i.Service, i.Domain)
 }
 
 // EscapeInstanceName escapes a service instance name for use within DNS

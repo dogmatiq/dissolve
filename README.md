@@ -22,6 +22,6 @@ DNS](https://tools.ietf.org/html/rfc6762) and Zeroconf/Bonjour toolkit for Go.
 
 - Advertise and discover services via Zeroconf/Bonjour
 - Discover DNS-SD services via conventional unicast DNS
+- Advertise DNS-SD services via common unicast DNS services (Route53, etc)
 - Expose methods for writing custom mDNS responders
-- Advertise DNS-SD services via unicast DNS services (Route53, etc)
-- Allow mDNS queries without cgo
+- Allow mDNS queries without CGO

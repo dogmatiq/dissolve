@@ -16,7 +16,7 @@ const DefaultTTL = 2 * time.Minute
 func NewPTRRecord(i Instance) *dns.PTR {
 	return &dns.PTR{
 		Hdr: dns.RR_Header{
-			Name:   InstanceEnumDomain(i.Service, i.Domain) + ".",
+			Name:   InstanceEnumerationDomain(i.Service, i.Domain) + ".",
 			Rrtype: dns.TypePTR,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
