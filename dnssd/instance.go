@@ -1,6 +1,7 @@
 package dnssd
 
 import (
+	"errors"
 	"strings"
 	"time"
 )
@@ -104,4 +105,51 @@ func EscapeInstanceName(n string) string {
 	}
 
 	return w.String()
+}
+
+// ParseInstanceName parses a service instance name.
+//
+// n must be an escaped service instance name, either relative or fully
+// qualified. Parsing stops at the first unescaped dot.
+//
+// name is the parsed and unescaped instance name. tail is the remaining
+// unparsed portion of n, not including the separating dot.
+//
+// If n contains only a single label (that is, does not contain any unescaped
+// dots), tail is empty.
+func ParseInstanceName(n string) (name, tail string, err error) {
+	var w strings.Builder
+
+	// https://tools.ietf.org/html/rfc6763#section-4.3
+	//
+	// This document RECOMMENDS that if concatenating the three portions of
+	// a Service Instance Name, any dots in the <Instance> portion be
+	// escaped following the customary DNS convention for text files: by
+	// preceding literal dots with a backslash (so "." becomes "\.").
+	// Likewise, any backslashes in the <Instance> portion should also be
+	// escaped by preceding them with a backslash (so "\" becomes "\\").
+	escaped := false
+
+	// Iterate over bytes (not runes, hence not using range keyword).
+	for i := 0; i < len(n); i++ {
+		ch := n[i]
+
+		if escaped {
+			escaped = false
+		} else if ch == '\\' {
+			escaped = true
+			continue
+		} else if ch == '.' {
+			tail = n[i+1:]
+			break
+		}
+
+		w.WriteByte(ch)
+	}
+
+	if escaped {
+		return "", "", errors.New("name is terminated with an escape character")
+	}
+
+	return w.String(), tail, nil
 }
