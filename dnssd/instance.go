@@ -1,7 +1,6 @@
 package dnssd
 
 import (
-	"fmt"
 	"strings"
 	"time"
 )
@@ -15,12 +14,16 @@ type Instance struct {
 	// Service is the type of service that the instance provides.
 	//
 	// For example "_http._tcp", or "_airplay._tcp".
+	//
+	// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.2.
 	Service string
 
 	// Domain is the domain under which the instance is advertised.
 	//
 	// That is, the domain name that contains the DNS-SD records SRV, PTR and
 	// TXT records.
+	//
+	// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.3
 	Domain string
 
 	// TargetHost is the fully-qualified hostname of the machine that hosts the
@@ -68,12 +71,7 @@ type Instance struct {
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1 for a
 // description of how fully-qualified service names are structured.
 func (i Instance) FullyQualifiedName() string {
-	return fmt.Sprintf(
-		"%s.%s.%s",
-		EscapeInstanceName(i.Name),
-		i.Service,
-		i.Domain,
-	)
+	return EscapeInstanceName(i.Name) + "." + InstanceEnumDomain(i.Service, i.Domain)
 }
 
 // EscapeInstanceName escapes a service instance name for use within DNS

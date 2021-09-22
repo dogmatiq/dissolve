@@ -7,10 +7,10 @@ import (
 )
 
 var _ = Describe("type Instance", func() {
-	var instance *Instance
+	var instance Instance
 
 	BeforeEach(func() {
-		instance = &Instance{
+		instance = Instance{
 			Name:    "Living Room TV.",
 			Service: "_airplay._tcp",
 			Domain:  "local",
