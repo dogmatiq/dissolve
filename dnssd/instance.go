@@ -12,12 +12,12 @@ type Instance struct {
 	// service or domain components.
 	Name string
 
-	// Service is the type of service that the instance provides.
+	// ServiceType is the type of service that the instance provides.
 	//
 	// For example "_http._tcp", or "_airplay._tcp".
 	//
 	// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.2.
-	Service string
+	ServiceType string
 
 	// Domain is the domain under which the instance is advertised.
 	//
@@ -67,12 +67,12 @@ type Instance struct {
 }
 
 // FullyQualifiedName returns the fully-qualified instance name of this
-// instance, including the name, service and domain components.
+// instance, including the name, service type and domain components.
 //
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1 for a
 // description of how fully-qualified service names are structured.
 func (i Instance) FullyQualifiedName() string {
-	return EscapeInstanceName(i.Name) + "." + InstanceEnumerationDomain(i.Service, i.Domain)
+	return EscapeInstanceName(i.Name) + "." + InstanceEnumerationDomain(i.ServiceType, i.Domain)
 }
 
 // EscapeInstanceName escapes a service instance name for use within DNS

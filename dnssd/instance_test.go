@@ -11,9 +11,9 @@ var _ = Describe("type Instance", func() {
 
 	BeforeEach(func() {
 		instance = Instance{
-			Name:    "Living Room TV.",
-			Service: "_airplay._tcp",
-			Domain:  "local",
+			Name:        "Living Room TV.",
+			ServiceType: "_airplay._tcp",
+			Domain:      "local",
 		}
 	})
 

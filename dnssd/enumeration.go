@@ -1,6 +1,8 @@
 package dnssd
 
-import "context"
+import (
+	"context"
+)
 
 // Enumerator is an interface for enumerating (discovering) DNS-SD services.
 type Enumerator interface {
@@ -15,12 +17,12 @@ type Enumerator interface {
 	EnumerateServiceTypes(
 		ctx context.Context,
 		domain string,
-		obs func(ctx context.Context, service, domain string) error,
+		obs func(ctx context.Context, serviceType string) error,
 	) error
 
-	// EnumerateInstances finds all of the instances of a specific service that
-	// are advertised within a single domain. This operation is also known as
-	// "browsing".
+	// EnumerateInstances finds all of the instances of a specific service type
+	// that are advertised within a single domain. This operation is also known
+	// as "browsing".
 	//
 	// It blocks until ctx is canceled or an error occurs.
 	//
@@ -29,13 +31,13 @@ type Enumerator interface {
 	// instance goes away. Enumeration is aborted if obs returns an error.
 	EnumerateInstances(
 		ctx context.Context,
-		service, domain string,
+		serviceType, domain string,
 		obs func(ctx context.Context, i Instance) error,
 	) error
 
 	// EnumerateInstancesSelectively finds all of the instances of a specific
-	// service that are advertised within a single domain where those services
-	// have a specific service sub-type.
+	// service type that are advertised within a single domain where those
+	// services have a specific service sub-type.
 	//
 	// It blocks until ctx is canceled or an error occurs.
 	//
@@ -44,7 +46,7 @@ type Enumerator interface {
 	// instance goes away. Enumeration is aborted if obs returns an error.
 	EnumerateInstancesSelectively(
 		ctx context.Context,
-		subtype, service, domain string,
+		subType, serviceType, domain string,
 		obs func(ctx context.Context, i Instance) error,
 	) error
 }
@@ -61,11 +63,11 @@ func TypeEnumerationDomain(domain string) string {
 }
 
 // InstanceEnumerationDomain returns the DNS name that is queried to perform
-// "service instance enumeration" (aka "browsing") for specific service &
+// "service instance enumeration" (aka "browsing") for specific service type &
 // domain.
 //
 // Service instance enumeration is used to find all of the instances of a
-// specific service on a specific domain.
+// specific service type on a specific domain.
 //
 // See https://tools.ietf.org/html/rfc6763#section-4.
 func InstanceEnumerationDomain(service, domain string) string {
@@ -80,10 +82,11 @@ func InstanceEnumerationDomain(service, domain string) string {
 // behaves in a specific way or fulfills some specific function.
 //
 // For example, browsing can be used to find all instances that provide the
-// _http._tcp service, but selective instance enumeration can be used to narrow
-// those results to include only web servers that are printer control panels.
+// _http._tcp service type, but selective instance enumeration can be used to
+// narrow those results to include only web servers that are printer control
+// panels.
 //
 // See https://tools.ietf.org/html/rfc6763#section-7.1
-func SelectiveInstanceEnumerationDomain(subtype, service, domain string) string {
-	return subtype + "._sub." + InstanceEnumerationDomain(service, domain)
+func SelectiveInstanceEnumerationDomain(subType, serviceType, domain string) string {
+	return subType + "._sub." + InstanceEnumerationDomain(serviceType, domain)
 }

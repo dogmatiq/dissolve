@@ -14,14 +14,14 @@ var _ = Describe("func TypeEnumerationDomain()", func() {
 })
 
 var _ = Describe("func InstanceEnumerationDomain()", func() {
-	It("returns the 'instance enumeration domain' for the given service & domain", func() {
+	It("returns the 'instance enumeration domain' for the given service type & domain", func() {
 		d := InstanceEnumerationDomain("_http._tcp", "example.org")
 		Expect(d).To(Equal("_http._tcp.example.org"))
 	})
 })
 
 var _ = Describe("func SelectiveInstanceEnumerationDomain()", func() {
-	It("returns the 'instance enumeration domain' for the given service & domain", func() {
+	It("returns the 'selective instance enumeration domain' for the given sub-type, service type & domain", func() {
 		d := SelectiveInstanceEnumerationDomain("_printer", "_http._tcp", "example.org")
 		Expect(d).To(Equal("_printer._sub._http._tcp.example.org"))
 	})

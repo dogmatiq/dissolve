@@ -14,13 +14,13 @@ var _ = Context("DNS records", func() {
 
 	BeforeEach(func() {
 		instance = Instance{
-			Name:       "Living Room TV.",
-			Service:    "_airplay._tcp",
-			Domain:     "local",
-			TargetHost: "host.example.org",
-			TargetPort: 12345,
-			Priority:   10,
-			Weight:     20,
+			Name:        "Living Room TV.",
+			ServiceType: "_airplay._tcp",
+			Domain:      "local",
+			TargetHost:  "host.example.org",
+			TargetPort:  12345,
+			Priority:    10,
+			Weight:      20,
 		}
 
 		instance.Attributes.Set("<key>", []byte("<value>"))
