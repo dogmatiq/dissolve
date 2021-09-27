@@ -9,14 +9,14 @@ import (
 var _ = Describe("func ServiceInstanceName()", func() {
 	It("returns the fully-qualified name, with appropriate escaping", func() {
 		d := ServiceInstanceName("Living Room TV.", "_airplay._tcp", "local")
-		Expect(d).To(Equal(`Living Room TV\.._airplay._tcp.local`))
+		Expect(d).To(Equal(`Living\ Room\ TV\.._airplay._tcp.local`))
 	})
 })
 
 var _ = Describe("func EscapeInstance()", func() {
-	It("escapes dots and backslashes by adding a backslash", func() {
-		n := EscapeInstance(`Foo\Bar.`)
-		Expect(n).To(Equal(`Foo\\Bar\.`))
+	It("escapes special characters by adding a backslash", func() {
+		n := EscapeInstance(`. '@;()"\regulartext`)
+		Expect(n).To(Equal(`\.\ \'\@\;\(\)\"\\regulartext`))
 	})
 })
 

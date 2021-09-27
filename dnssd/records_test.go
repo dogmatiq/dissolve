@@ -38,11 +38,11 @@ var _ = Context("DNS records", func() {
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Ptr: `Living Room TV\.._airplay._tcp.local.`,
+					Ptr: `Living\ Room\ TV\.._airplay._tcp.local.`,
 				},
 				&dns.SRV{
 					Hdr: dns.RR_Header{
-						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
 						Rrtype: dns.TypeSRV,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -54,7 +54,7 @@ var _ = Context("DNS records", func() {
 				},
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -115,7 +115,7 @@ var _ = Context("DNS records", func() {
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Ptr: `Living Room TV\.._airplay._tcp.local.`,
+					Ptr: `Living\ Room\ TV\.._airplay._tcp.local.`,
 				},
 			))
 		})
@@ -128,7 +128,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.SRV{
 					Hdr: dns.RR_Header{
-						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
 						Rrtype: dns.TypeSRV,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -149,7 +149,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,

@@ -84,6 +84,10 @@ func ServiceInstanceName(instance, serviceType, domain string) string {
 	return EscapeInstance(instance) + "." + InstanceEnumerationDomain(serviceType, domain)
 }
 
+// needsEscape is a string containing runes that must be escaped when they
+// appear in an instance name.
+const needsEscape = `. '@;()"\`
+
 // EscapeInstance escapes a service instance name for use within DNS
 // records.
 //
@@ -101,7 +105,7 @@ func EscapeInstance(instance string) string {
 	var w strings.Builder
 
 	for _, r := range instance {
-		if r == '.' || r == '\\' {
+		if strings.ContainsRune(needsEscape, r) {
 			w.WriteRune('\\')
 		}
 
