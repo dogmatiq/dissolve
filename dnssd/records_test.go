@@ -150,4 +150,22 @@ var _ = Context("DNS records", func() {
 			))
 		})
 	})
+
+	Describe("func NewServiceTypePTRRecord()", func() {
+		It("returns the expected PTR record", func() {
+			rec := NewServiceTypePTRRecord("_airplay._tcp", "local", 0)
+
+			Expect(rec).To(Equal(
+				&dns.PTR{
+					Hdr: dns.RR_Header{
+						Name:   `_services._dns-sd._udp.local.`,
+						Rrtype: dns.TypePTR,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Ptr: `_airplay._tcp.local.`,
+				},
+			))
+		})
+	})
 })

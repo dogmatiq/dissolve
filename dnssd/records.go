@@ -98,6 +98,23 @@ func NewAAAARecord(i Instance, ip net.IP) *dns.AAAA {
 	}
 }
 
+// NewServiceTypePTRRecord returns the PTR record for a service type.
+//
+// These records are sent in response to a service type enumeration request.
+//
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-9
+func NewServiceTypePTRRecord(serviceType, domain string, ttl time.Duration) *dns.PTR {
+	return &dns.PTR{
+		Hdr: dns.RR_Header{
+			Name:   TypeEnumerationDomain(domain) + ".",
+			Rrtype: dns.TypePTR,
+			Class:  dns.ClassINET,
+			Ttl:    ttlInSeconds(ttl),
+		},
+		Ptr: InstanceEnumerationDomain(serviceType, domain) + ".",
+	}
+}
+
 // ttlInSeconds returns TTL as the number of whole seconds for use within a DNS
 // record.
 //
