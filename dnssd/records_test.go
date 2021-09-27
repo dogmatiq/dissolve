@@ -26,6 +26,83 @@ var _ = Context("DNS records", func() {
 		instance.Attributes.Set("<key>", []byte("<value>"))
 	})
 
+	Describe("func NewRecords()", func() {
+		It("returns all of the records required to announce a service instance", func() {
+			records := NewRecords(instance)
+
+			Expect(records).To(ConsistOf(
+				&dns.PTR{
+					Hdr: dns.RR_Header{
+						Name:   `_airplay._tcp.local.`,
+						Rrtype: dns.TypePTR,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Ptr: `Living Room TV\.._airplay._tcp.local.`,
+				},
+				&dns.SRV{
+					Hdr: dns.RR_Header{
+						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeSRV,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Target:   "host.example.org.",
+					Port:     12345,
+					Priority: 10,
+					Weight:   20,
+				},
+				&dns.TXT{
+					Hdr: dns.RR_Header{
+						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeTXT,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Txt: []string{"<key>=<value>"},
+				},
+			))
+		})
+
+		It("adds A and AAAA records if IP addresses are passed", func() {
+			records := NewRecords(
+				instance,
+				net.IPv4(192, 168, 20, 1),
+				net.ParseIP("fe80::1ce5:3c8b:36f:53cf"),
+			)
+
+			Expect(records).To(ContainElements(
+				&dns.A{
+					Hdr: dns.RR_Header{
+						Name:   `host.example.org.`,
+						Rrtype: dns.TypeA,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					A: net.IPv4(192, 168, 20, 1).To4(),
+				},
+				&dns.AAAA{
+					Hdr: dns.RR_Header{
+						Name:   `host.example.org.`,
+						Rrtype: dns.TypeAAAA,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					AAAA: net.IPv4(192, 168, 20, 1).To16(),
+				},
+				&dns.AAAA{
+					Hdr: dns.RR_Header{
+						Name:   `host.example.org.`,
+						Rrtype: dns.TypeAAAA,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					AAAA: net.IP{0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0xe5, 0x3c, 0x8b, 0x03, 0x6f, 0x53, 0xcf},
+				},
+			))
+		})
+	})
+
 	Describe("func NewPTRRecord()", func() {
 		It("returns the expected PTR record", func() {
 			rec := NewPTRRecord(instance)

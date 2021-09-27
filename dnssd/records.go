@@ -10,6 +10,28 @@ import (
 // DefaultTTL is the default TTL to use for DNS records.
 const DefaultTTL = 2 * time.Minute
 
+// NewRecords returns the set of DNS-SD records used to announce the given
+// service instance.
+func NewRecords(i Instance, addresses ...net.IP) []dns.RR {
+	records := []dns.RR{
+		NewPTRRecord(i),
+		NewSRVRecord(i),
+		NewTXTRecord(i),
+	}
+
+	for _, ip := range addresses {
+		if ip.To4() != nil {
+			records = append(records, NewARecord(i, ip))
+		}
+
+		if ip.To16() != nil {
+			records = append(records, NewAAAARecord(i, ip))
+		}
+	}
+
+	return records
+}
+
 // NewPTRRecord returns the PTR record for a service instance.
 //
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1
