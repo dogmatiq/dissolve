@@ -10,11 +10,11 @@ import (
 )
 
 var _ = Context("DNS records", func() {
-	var instance Instance
+	var instance ServiceInstance
 
 	BeforeEach(func() {
-		instance = Instance{
-			Name:        "Living Room TV.",
+		instance = ServiceInstance{
+			Instance:    "Living Room TV.",
 			ServiceType: "_airplay._tcp",
 			Domain:      "local",
 			TargetHost:  "host.example.org",
@@ -64,11 +64,11 @@ var _ = Context("DNS records", func() {
 			))
 		})
 
-		It("adds A and AAAA records if IP addresses are passed", func() {
+		It("adds A and AAAA records if the WithIPAddress() option is used", func() {
 			records := NewRecords(
 				instance,
-				net.IPv4(192, 168, 20, 1),
-				net.ParseIP("fe80::1ce5:3c8b:36f:53cf"),
+				WithIPAddress(net.IPv4(192, 168, 20, 1)),
+				WithIPAddress(net.ParseIP("fe80::1ce5:3c8b:36f:53cf")),
 			)
 
 			Expect(records).To(ContainElements(

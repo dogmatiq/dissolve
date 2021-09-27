@@ -32,7 +32,7 @@ type Enumerator interface {
 	EnumerateInstances(
 		ctx context.Context,
 		serviceType, domain string,
-		obs func(ctx context.Context, i Instance) error,
+		obs func(ctx context.Context, i ServiceInstance) error,
 	) error
 
 	// EnumerateInstancesSelectively finds all of the instances of a specific
@@ -47,7 +47,7 @@ type Enumerator interface {
 	EnumerateInstancesSelectively(
 		ctx context.Context,
 		subType, serviceType, domain string,
-		obs func(ctx context.Context, i Instance) error,
+		obs func(ctx context.Context, i ServiceInstance) error,
 	) error
 }
 
