@@ -104,4 +104,15 @@ var _ = Context("UnicastResolver", func() {
 			))
 		})
 	})
+
+	Describe("func EnumerateServiceInstances()", func() {
+		It("returns instances of the service type that are advertised within the domain", func() {
+			serviceTypes, err := resolver.EnumerateServiceInstances(ctx, "_http._tcp", "local")
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(serviceTypes).To(ContainElements(
+				"Instance A",
+				"Instance B",
+			))
+		})
+	})
 })
