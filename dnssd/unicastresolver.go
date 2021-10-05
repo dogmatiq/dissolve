@@ -57,7 +57,9 @@ func (r *UnicastResolver) EnumerateServiceTypes(
 // EnumerateServiceInstances finds all of the instances of a given service type
 // that are advertised within a single domain.
 //
-// Service type is the type of service to enumerate, for example "_http._tcp",
+// This operation is also known as as "browsing".
+//
+// serviceType is the type of service to enumerate, for example "_http._tcp",
 // or "_airplay._tcp".
 //
 // It returns a slice of the instance names. This is the "<instance>" portion of
@@ -71,6 +73,47 @@ func (r *UnicastResolver) EnumerateServiceInstances(
 	res, ok, err := r.query(
 		ctx,
 		InstanceEnumerationDomain(serviceType, domain),
+		dns.TypePTR,
+	)
+	if !ok || err != nil {
+		return nil, err
+	}
+
+	instances := make([]string, 0, len(res.Answer))
+
+	for _, rr := range res.Answer {
+		if ptr, ok := rr.(*dns.PTR); ok {
+			instance, _, err := ParseInstance(ptr.Ptr)
+			if err == nil {
+				instances = append(instances, instance)
+			}
+		}
+	}
+
+	return instances, nil
+}
+
+// EnumerateServiceInstancesBySubType finds all of the instances of a given
+// service sub-type that are advertised within a single domain.
+//
+// This operation is also known as "selective instance enumeration" or less
+// commonly "selective browsing" or "sub-type browsing".
+//
+// subType is the specific service sub-type, such as "_printer". serviceType is
+// the type of service to enumerate, for example "_http._tcp", or
+// "_airplay._tcp".
+//
+// It returns a slice of the instance names. This is the "<instance>" portion of
+// the "service instance name", for example, "Living Room TV".
+//
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+func (r *UnicastResolver) EnumerateServiceInstancesBySubType(
+	ctx context.Context,
+	subType, serviceType, domain string,
+) ([]string, error) {
+	res, ok, err := r.query(
+		ctx,
+		SelectiveInstanceEnumerationDomain(subType, serviceType, domain),
 		dns.TypePTR,
 	)
 	if !ok || err != nil {
