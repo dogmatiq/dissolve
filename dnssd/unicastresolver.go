@@ -103,48 +103,12 @@ func (r *UnicastResolver) query(
 		defer cancel()
 	}
 
-	client := r.Client
-	if client == nil {
-		client = &dns.Client{}
-	}
-
-	if d, ok := ctx.Deadline(); ok {
-		if client == r.Client {
-			// The user has provided a specific client to use. We take a copy
-			// client so we can manipulate client.DialTimeout without causing a
-			// data race.
-			client = &dns.Client{
-				Net:            r.Client.Net,
-				UDPSize:        r.Client.UDPSize,
-				TLSConfig:      r.Client.TLSConfig,
-				Dialer:         r.Client.Dialer,
-				Timeout:        r.Client.Timeout,
-				ReadTimeout:    r.Client.ReadTimeout,
-				WriteTimeout:   r.Client.WriteTimeout,
-				TsigSecret:     r.Client.TsigSecret,
-				TsigProvider:   r.Client.TsigProvider,
-				SingleInflight: r.Client.SingleInflight,
-			}
-		}
-
-		client.DialTimeout = time.Until(d)
-	}
-
 	req := &dns.Msg{}
 	req.SetQuestion(name+".", questionType)
 
 	for _, s := range r.Config.Servers {
 		addr := net.JoinHostPort(s, r.Config.Port)
-		res, _, err := client.Exchange(req, addr)
-
-		// Manually check for context cancelation, as client.Exchange() does not
-		// support it and client.ExchangeContext() is avoided due to a lack of
-		// support for context cancelation (only deadlines) and the fact that it
-		// clobbers the user's provided dialer, which aside from not behaving as
-		// configured is potentially a data race.
-		if ctx.Err() != nil {
-			return nil, false, ctx.Err()
-		}
+		res, err := r.queryServer(ctx, addr, req)
 
 		// We could not query this server, move on to the next one.
 		if err != nil {
@@ -165,4 +129,51 @@ func (r *UnicastResolver) query(
 
 	// None of the servers had a result for this query.
 	return nil, false, nil
+}
+
+// query performs a DNS query against all of the servers in r.Config.
+func (r *UnicastResolver) queryServer(
+	ctx context.Context,
+	addr string,
+	req *dns.Msg,
+) (*dns.Msg, error) {
+	client := r.Client
+	if client == nil {
+		client = &dns.Client{}
+	}
+
+	conn, err := client.Dial(addr)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a context that is always canceled when we are finished with this
+	// server.
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Close the connection when the context is canceled, regardless of whether
+	// it's before or after the exchange is complete. This also terminates the
+	// exchange if the parent ctx is canceled for any reason, including reaching
+	// its deadline.
+	go func() {
+		<-ctx.Done()
+		conn.Close()
+	}()
+
+	res, _, err := client.ExchangeWithConn(req, conn)
+
+	if err != nil {
+		// If ctx has been canceled for any reason, report that error instead of
+		// err. This accounts for the likely scenario that conn is closed
+		// _because_ the context was canceled, and avoids returning the
+		// resulting IO error.
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
+		return nil, err
+	}
+
+	return res, nil
 }
