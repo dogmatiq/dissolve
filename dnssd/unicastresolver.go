@@ -23,7 +23,7 @@ type UnicastResolver struct {
 //
 // It returns a slice containing the discovered service types, without the
 // domain suffix.  This is the "<service>" portion of the "service instance
-// name", For example "_http._tcp", or "_airplay._tcp".
+// name", For example "_http._tcp".
 //
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
 func (r *UnicastResolver) EnumerateServiceTypes(
@@ -54,19 +54,18 @@ func (r *UnicastResolver) EnumerateServiceTypes(
 	return serviceTypes, nil
 }
 
-// EnumerateServiceInstances finds all of the instances of a given service type
-// that are advertised within a single domain.
+// EnumerateInstances finds all of the instances of a given service type that
+// are advertised within a single domain.
 //
 // This operation is also known as as "browsing".
 //
-// serviceType is the type of service to enumerate, for example "_http._tcp",
-// or "_airplay._tcp".
+// serviceType is the type of service to enumerate, for example "_http._tcp".
 //
 // It returns a slice of the instance names. This is the "<instance>" portion of
-// the "service instance name", for example, "Living Room TV".
+// the "service instance name", for example, "Boardroom Printer".
 //
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
-func (r *UnicastResolver) EnumerateServiceInstances(
+func (r *UnicastResolver) EnumerateInstances(
 	ctx context.Context,
 	serviceType, domain string,
 ) ([]string, error) {
@@ -93,21 +92,20 @@ func (r *UnicastResolver) EnumerateServiceInstances(
 	return instances, nil
 }
 
-// EnumerateServiceInstancesBySubType finds all of the instances of a given
-// service sub-type that are advertised within a single domain.
+// EnumerateInstancesBySubType finds all of the instances of a given service
+// sub-type that are advertised within a single domain.
 //
 // This operation is also known as "selective instance enumeration" or less
 // commonly "selective browsing" or "sub-type browsing".
 //
 // subType is the specific service sub-type, such as "_printer". serviceType is
-// the type of service to enumerate, for example "_http._tcp", or
-// "_airplay._tcp".
+// the type of service to enumerate, for example "_http._tcp".
 //
 // It returns a slice of the instance names. This is the "<instance>" portion of
-// the "service instance name", for example, "Living Room TV".
+// the "service instance name", for example, "Boardroom Printer".
 //
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
-func (r *UnicastResolver) EnumerateServiceInstancesBySubType(
+func (r *UnicastResolver) EnumerateInstancesBySubType(
 	ctx context.Context,
 	subType, serviceType, domain string,
 ) ([]string, error) {
@@ -150,16 +148,15 @@ func (r *UnicastResolver) query(
 	req.SetQuestion(name+".", questionType)
 
 	for _, s := range r.Config.Servers {
-		addr := net.JoinHostPort(s, r.Config.Port)
-		res, err := r.queryServer(ctx, addr, req)
-
-		// We could not query this server, move on to the next one.
-		if err != nil {
-			continue
+		if ctx.Err() != nil {
+			return nil, false, ctx.Err()
 		}
 
-		// Server was contactable but did not have a response for this query.
-		if res == nil {
+		addr := net.JoinHostPort(s, r.Config.Port)
+		res, ok := r.queryServer(ctx, addr, req)
+
+		// Server was not contactable or had no response for this query.
+		if !ok {
 			continue
 		}
 
@@ -179,7 +176,7 @@ func (r *UnicastResolver) queryServer(
 	ctx context.Context,
 	addr string,
 	req *dns.Msg,
-) (*dns.Msg, error) {
+) (*dns.Msg, bool) {
 	client := r.Client
 	if client == nil {
 		client = &dns.Client{}
@@ -187,7 +184,7 @@ func (r *UnicastResolver) queryServer(
 
 	conn, err := client.Dial(addr)
 	if err != nil {
-		return nil, err
+		return nil, false
 	}
 
 	// Create a context that is always canceled when we are finished with this
@@ -204,19 +201,6 @@ func (r *UnicastResolver) queryServer(
 		conn.Close()
 	}()
 
-	res, _, err := client.ExchangeWithConn(req, conn)
-
-	if err != nil {
-		// If ctx has been canceled for any reason, report that error instead of
-		// err. This accounts for the likely scenario that conn is closed
-		// _because_ the context was canceled, and avoids returning the
-		// resulting IO error.
-		if ctx.Err() != nil {
-			return nil, ctx.Err()
-		}
-
-		return nil, err
-	}
-
-	return res, nil
+	res, _, _ := client.ExchangeWithConn(req, conn)
+	return res, res != nil
 }
