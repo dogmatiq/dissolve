@@ -287,6 +287,36 @@ var _ = Context("UnicastServer", func() {
 				)
 			})
 		})
+
+		Context("queries with a question class other than INET", func() {
+			req := &dns.Msg{}
+			req.SetQuestion(
+				"b.example.org.",
+				dns.TypeANY,
+			)
+
+			It("responds normally if the class ANY", func() {
+				req.Question[0].Qclass = dns.ClassANY
+
+				res, _, err := client.ExchangeContext(ctx, req, "127.0.0.1:65353")
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(res).NotTo(BeNil())
+				expectRecords(
+					res,
+					`b.example.org.	120	IN	A	192.168.20.1`,
+					"b.example.org.	120	IN	AAAA	fe80::1ce5:3c8b:36f:53cf",
+				)
+			})
+
+			It("responds with a non-existant domain error if the class is any other class", func() {
+				req.Question[0].Qclass = dns.ClassCHAOS
+
+				res, _, err := client.ExchangeContext(ctx, req, "127.0.0.1:65353")
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(res).NotTo(BeNil())
+				Expect(res.Rcode).To(Equal(dns.RcodeNameError))
+			})
+		})
 	})
 
 	Describe("func Run()", func() {

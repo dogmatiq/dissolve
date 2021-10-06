@@ -255,6 +255,11 @@ func (s *UnicastServer) buildResponse(req *dns.Msg) (*dns.Msg, bool) {
 	res.Authoritative = true
 	res.RecursionAvailable = false
 
+	if q.Qclass != dns.ClassINET && q.Qclass != dns.ClassANY {
+		res.Rcode = dns.RcodeNameError
+		return res, true
+	}
+
 	s.m.RLock()
 	defer s.m.RUnlock()
 
