@@ -25,8 +25,8 @@ var _ = Context("UnicastServer", func() {
 		instanceA = ServiceInstance{
 			Instance:    "Instance A",
 			ServiceType: "_http._tcp",
-			Domain:      "local",
-			TargetHost:  "a.example.org",
+			Domain:      "example.org",
+			TargetHost:  "a.example.com",
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
@@ -37,8 +37,8 @@ var _ = Context("UnicastServer", func() {
 		instanceB = ServiceInstance{
 			Instance:    "Instance B",
 			ServiceType: "_http._tcp",
-			Domain:      "local",
-			TargetHost:  "b.example.org",
+			Domain:      "example.org",
+			TargetHost:  "b.example.com",
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
@@ -49,9 +49,9 @@ var _ = Context("UnicastServer", func() {
 
 		instanceC = ServiceInstance{
 			Instance:    "Instance C",
-			ServiceType: "_sleep-proxy._udp",
-			Domain:      "local",
-			TargetHost:  "c.example.org",
+			ServiceType: "_other._udp",
+			Domain:      "example.org",
+			TargetHost:  "c.example.com",
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
@@ -103,7 +103,7 @@ var _ = Context("UnicastServer", func() {
 		Context("service type enumeration", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				TypeEnumerationDomain("local")+".",
+				TypeEnumerationDomain("example.org")+".",
 				dns.TypePTR,
 			)
 
@@ -113,8 +113,8 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`_services._dns-sd._udp.local.	120	IN	PTR	_http._tcp.local.`,
-					`_services._dns-sd._udp.local.	120	IN	PTR	_sleep-proxy._udp.local.`,
+					`_services._dns-sd._udp.example.org.	120	IN	PTR	_http._tcp.example.org.`,
+					`_services._dns-sd._udp.example.org.	120	IN	PTR	_other._udp.example.org.`,
 				)
 			})
 
@@ -130,8 +130,8 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`_services._dns-sd._udp.local.	120	IN	PTR	_http._tcp.local.`,
-					`_services._dns-sd._udp.local.	120	IN	PTR	_sleep-proxy._udp.local.`,
+					`_services._dns-sd._udp.example.org.	120	IN	PTR	_http._tcp.example.org.`,
+					`_services._dns-sd._udp.example.org.	120	IN	PTR	_other._udp.example.org.`,
 				)
 
 				By("removing the last remaining _http._tcp instance")
@@ -145,7 +145,7 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`_services._dns-sd._udp.local.	120	IN	PTR	_sleep-proxy._udp.local.`,
+					`_services._dns-sd._udp.example.org.	120	IN	PTR	_other._udp.example.org.`,
 				)
 			})
 		})
@@ -153,7 +153,7 @@ var _ = Context("UnicastServer", func() {
 		Context("service instance enumeration (aka browsing)", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				InstanceEnumerationDomain("_http._tcp", "local")+".",
+				InstanceEnumerationDomain("_http._tcp", "example.org")+".",
 				dns.TypePTR,
 			)
 
@@ -163,8 +163,8 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`_http._tcp.local.	120	IN	PTR	Instance\ A._http._tcp.local.`,
-					`_http._tcp.local.	120	IN	PTR	Instance\ B._http._tcp.local.`,
+					`_http._tcp.example.org.	120	IN	PTR	Instance\ A._http._tcp.example.org.`,
+					`_http._tcp.example.org.	120	IN	PTR	Instance\ B._http._tcp.example.org.`,
 				)
 			})
 
@@ -176,7 +176,7 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`_http._tcp.local.	120	IN	PTR	Instance\ B._http._tcp.local.`,
+					`_http._tcp.example.org.	120	IN	PTR	Instance\ B._http._tcp.example.org.`,
 				)
 			})
 		})
@@ -184,7 +184,7 @@ var _ = Context("UnicastServer", func() {
 		Context("selective instance enumeration", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				SelectiveInstanceEnumerationDomain("_printer", "_http._tcp", "local")+".",
+				SelectiveInstanceEnumerationDomain("_printer", "_http._tcp", "example.org")+".",
 				dns.TypePTR,
 			)
 
@@ -194,7 +194,7 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`_printer._sub._http._tcp.local.	120	IN	PTR	Instance\ A._http._tcp.local.`,
+					`_printer._sub._http._tcp.example.org.	120	IN	PTR	Instance\ A._http._tcp.example.org.`,
 				)
 			})
 
@@ -214,7 +214,7 @@ var _ = Context("UnicastServer", func() {
 		Context("instance 'lookup' queries", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				ServiceInstanceName("Instance A", "_http._tcp", "local")+".",
+				ServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
 				dns.TypeANY,
 			)
 
@@ -224,14 +224,14 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`Instance\ A._http._tcp.local.	120	IN	SRV	10 20 12345 a.example.org.`,
-					`Instance\ A._http._tcp.local.	120	IN	TXT	"<key>=<instance-a>"`,
+					`Instance\ A._http._tcp.example.org.	120	IN	SRV	10 20 12345 a.example.com.`,
+					`Instance\ A._http._tcp.example.org.	120	IN	TXT	"<key>=<instance-a>"`,
 				)
 			})
 
 			It("responds to instance lookup queries for a specific record type", func() {
 				req.SetQuestion(
-					ServiceInstanceName("Instance A", "_http._tcp", "local")+".",
+					ServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
 					dns.TypeSRV,
 				)
 
@@ -240,7 +240,7 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`Instance\ A._http._tcp.local.	120	IN	SRV	10 20 12345 a.example.org.`,
+					`Instance\ A._http._tcp.example.org.	120	IN	SRV	10 20 12345 a.example.com.`,
 				)
 			})
 
@@ -260,7 +260,7 @@ var _ = Context("UnicastServer", func() {
 		Context("address (IP lookup) queries", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				"b.example.org.",
+				"b.example.com.",
 				dns.TypeANY,
 			)
 
@@ -270,8 +270,8 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`b.example.org.	120	IN	A	192.168.20.1`,
-					"b.example.org.	120	IN	AAAA	fe80::1ce5:3c8b:36f:53cf",
+					`b.example.com.	120	IN	A	192.168.20.1`,
+					"b.example.com.	120	IN	AAAA	fe80::1ce5:3c8b:36f:53cf",
 				)
 			})
 
@@ -291,7 +291,7 @@ var _ = Context("UnicastServer", func() {
 		Context("queries with a question class other than INET", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				"b.example.org.",
+				"b.example.com.",
 				dns.TypeANY,
 			)
 
@@ -303,8 +303,8 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				expectRecords(
 					res,
-					`b.example.org.	120	IN	A	192.168.20.1`,
-					"b.example.org.	120	IN	AAAA	fe80::1ce5:3c8b:36f:53cf",
+					`b.example.com.	120	IN	A	192.168.20.1`,
+					"b.example.com.	120	IN	AAAA	fe80::1ce5:3c8b:36f:53cf",
 				)
 			})
 

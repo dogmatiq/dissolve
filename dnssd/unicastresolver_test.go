@@ -27,8 +27,8 @@ var _ = Context("UnicastResolver", func() {
 		instanceA = ServiceInstance{
 			Instance:    "Instance A",
 			ServiceType: "_http._tcp",
-			Domain:      "local",
-			TargetHost:  "a.example.org",
+			Domain:      "example.org",
+			TargetHost:  "a.example.com",
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
@@ -40,8 +40,8 @@ var _ = Context("UnicastResolver", func() {
 		instanceB = ServiceInstance{
 			Instance:    "Instance B",
 			ServiceType: "_http._tcp",
-			Domain:      "local",
-			TargetHost:  "b.example.org",
+			Domain:      "example.org",
+			TargetHost:  "b.example.com",
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
@@ -52,9 +52,9 @@ var _ = Context("UnicastResolver", func() {
 
 		instanceC = ServiceInstance{
 			Instance:    "Instance C",
-			ServiceType: "_sleep-proxy._udp",
-			Domain:      "local",
-			TargetHost:  "c.example.org",
+			ServiceType: "_other._udp",
+			Domain:      "example.org",
+			TargetHost:  "c.example.com",
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
@@ -99,18 +99,18 @@ var _ = Context("UnicastResolver", func() {
 
 	Describe("func EnumerateServiceTypes()", func() {
 		It("returns the distinct service types advertised within the domain", func() {
-			serviceTypes, err := resolver.EnumerateServiceTypes(ctx, "local")
+			serviceTypes, err := resolver.EnumerateServiceTypes(ctx, "example.org")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(serviceTypes).To(ContainElements(
 				"_http._tcp",
-				"_sleep-proxy._udp",
+				"_other._udp",
 			))
 		})
 	})
 
 	Describe("func EnumerateInstances()", func() {
 		It("returns instances of the service type that are advertised within the domain", func() {
-			serviceTypes, err := resolver.EnumerateInstances(ctx, "_http._tcp", "local")
+			serviceTypes, err := resolver.EnumerateInstances(ctx, "_http._tcp", "example.org")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(serviceTypes).To(ContainElements(
 				"Instance A",
@@ -121,7 +121,7 @@ var _ = Context("UnicastResolver", func() {
 
 	Describe("func EnumerateInstancesBySubType()", func() {
 		It("returns instances of the sub-type and service type that are advertised within the domain", func() {
-			serviceTypes, err := resolver.EnumerateInstancesBySubType(ctx, "_printer", "_http._tcp", "local")
+			serviceTypes, err := resolver.EnumerateInstancesBySubType(ctx, "_printer", "_http._tcp", "example.org")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(serviceTypes).To(ContainElements(
 				"Instance A",
@@ -131,14 +131,14 @@ var _ = Context("UnicastResolver", func() {
 
 	Describe("func LookupServiceInstance()", func() {
 		It("returns complete information about the service instance", func() {
-			i, ok, err := resolver.LookupInstance(ctx, "Instance A", "_http._tcp", "local")
+			i, ok, err := resolver.LookupInstance(ctx, "Instance A", "_http._tcp", "example.org")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(ok).To(BeTrue())
 			Expect(i).To(Equal(instanceA))
 		})
 
 		It("returns false if no such instance exists", func() {
-			_, ok, err := resolver.LookupInstance(ctx, "Instance X", "_http._tcp", "local")
+			_, ok, err := resolver.LookupInstance(ctx, "Instance X", "_http._tcp", "example.org")
 			Expect(err).ShouldNot(HaveOccurred())
 			Expect(ok).To(BeFalse())
 		})

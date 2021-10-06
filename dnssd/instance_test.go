@@ -8,8 +8,8 @@ import (
 
 var _ = Describe("func ServiceInstanceName()", func() {
 	It("returns the fully-qualified name, with appropriate escaping", func() {
-		d := ServiceInstanceName("Living Room TV.", "_airplay._tcp", "local")
-		Expect(d).To(Equal(`Living\ Room\ TV\.._airplay._tcp.local`))
+		d := ServiceInstanceName("Boardroom Printer.", "_http._tcp", "example.org")
+		Expect(d).To(Equal(`Boardroom\ Printer\.._http._tcp.example.org`))
 	})
 })
 

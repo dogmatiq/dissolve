@@ -11,7 +11,7 @@ import (
 type ServiceInstance struct {
 	// Instance is the service instance's unqualified name.
 	//
-	// For example, "Living Room TV".
+	// For example, "Boardroom Printer".
 	//
 	// This is the "<instance>" portion of the "service instance name", as
 	// described in https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.

@@ -14,10 +14,10 @@ var _ = Context("DNS records", func() {
 
 	BeforeEach(func() {
 		instance = ServiceInstance{
-			Instance:    "Living Room TV.",
-			ServiceType: "_airplay._tcp",
-			Domain:      "local",
-			TargetHost:  "host.example.org",
+			Instance:    "Boardroom Printer.",
+			ServiceType: "_http._tcp",
+			Domain:      "example.org",
+			TargetHost:  "host.example.com",
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
@@ -34,28 +34,28 @@ var _ = Context("DNS records", func() {
 			Expect(records).To(ConsistOf(
 				&dns.PTR{
 					Hdr: dns.RR_Header{
-						Name:   `_airplay._tcp.local.`,
+						Name:   `_http._tcp.example.org.`,
 						Rrtype: dns.TypePTR,
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Ptr: `Living\ Room\ TV\.._airplay._tcp.local.`,
+					Ptr: `Boardroom\ Printer\.._http._tcp.example.org.`,
 				},
 				&dns.SRV{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeSRV,
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Target:   "host.example.org.",
+					Target:   "host.example.com.",
 					Port:     12345,
 					Priority: 10,
 					Weight:   20,
 				},
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -75,7 +75,7 @@ var _ = Context("DNS records", func() {
 			Expect(records).To(ContainElements(
 				&dns.A{
 					Hdr: dns.RR_Header{
-						Name:   `host.example.org.`,
+						Name:   `host.example.com.`,
 						Rrtype: dns.TypeA,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -84,7 +84,7 @@ var _ = Context("DNS records", func() {
 				},
 				&dns.AAAA{
 					Hdr: dns.RR_Header{
-						Name:   `host.example.org.`,
+						Name:   `host.example.com.`,
 						Rrtype: dns.TypeAAAA,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -102,12 +102,12 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.PTR{
 					Hdr: dns.RR_Header{
-						Name:   `_airplay._tcp.local.`,
+						Name:   `_http._tcp.example.org.`,
 						Rrtype: dns.TypePTR,
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Ptr: `Living\ Room\ TV\.._airplay._tcp.local.`,
+					Ptr: `Boardroom\ Printer\.._http._tcp.example.org.`,
 				},
 			))
 		})
@@ -120,12 +120,12 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.SRV{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeSRV,
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Target:   "host.example.org.",
+					Target:   "host.example.com.",
 					Port:     12345,
 					Priority: 10,
 					Weight:   20,
@@ -141,7 +141,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(ConsistOf(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -161,7 +161,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(ConsistOf(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -170,7 +170,7 @@ var _ = Context("DNS records", func() {
 				},
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -187,7 +187,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(ConsistOf(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -204,7 +204,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(ConsistOf(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -220,7 +220,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(ConsistOf(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Name:   `Boardroom\ Printer\.._http._tcp.example.org.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -237,7 +237,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.A{
 					Hdr: dns.RR_Header{
-						Name:   `host.example.org.`,
+						Name:   `host.example.com.`,
 						Rrtype: dns.TypeA,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -253,7 +253,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.A{
 					Hdr: dns.RR_Header{
-						Name:   `host.example.org.`,
+						Name:   `host.example.com.`,
 						Rrtype: dns.TypeA,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -271,7 +271,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.AAAA{
 					Hdr: dns.RR_Header{
-						Name:   `host.example.org.`,
+						Name:   `host.example.com.`,
 						Rrtype: dns.TypeAAAA,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -296,17 +296,17 @@ var _ = Context("DNS records", func() {
 
 	Describe("func NewServiceTypePTRRecord()", func() {
 		It("returns the expected PTR record", func() {
-			rec := NewServiceTypePTRRecord("_airplay._tcp", "local", 0)
+			rec := NewServiceTypePTRRecord("_http._tcp", "example.org", 0)
 
 			Expect(rec).To(Equal(
 				&dns.PTR{
 					Hdr: dns.RR_Header{
-						Name:   `_services._dns-sd._udp.local.`,
+						Name:   `_services._dns-sd._udp.example.org.`,
 						Rrtype: dns.TypePTR,
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Ptr: `_airplay._tcp.local.`,
+					Ptr: `_http._tcp.example.org.`,
 				},
 			))
 		})
