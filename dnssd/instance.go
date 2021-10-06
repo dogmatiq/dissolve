@@ -46,13 +46,6 @@ type ServiceInstance struct {
 	// TargetPort is TCP or UDP port on which the service is provided.
 	TargetPort uint16
 
-	// Attributes contains a set of attributes that provide additional
-	// information about the service instance.
-	//
-	// Attributes are encoded in the instance's TXT record, as per
-	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.3.
-	Attributes Attributes
-
 	// Priority is the priority of the instance within the pool of instances
 	// that  offer the same service for the same domain.
 	//
@@ -71,6 +64,13 @@ type ServiceInstance struct {
 	//
 	// See https://datatracker.ietf.org/doc/html/rfc2782.
 	Weight uint16
+
+	// Attributes contains a set of attributes that provide additional
+	// information about the service instance.
+	//
+	// Attributes are encoded in the instance's TXT record, as per
+	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.3.
+	Attributes Attributes
 
 	// TTL is the time-to-live of the instance's DNS records.
 	TTL time.Duration

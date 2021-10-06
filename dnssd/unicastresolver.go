@@ -2,6 +2,7 @@ package dnssd
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -130,6 +131,63 @@ func (r *UnicastResolver) EnumerateInstancesBySubType(
 	}
 
 	return instances, nil
+}
+
+// LookupInstance looks up the details about a specific service instance.
+//
+// instance and serviceType are the "<instance>" and "<service>" portions of the
+// instance name, for example "Boardroom Printer" and "_http._tcp", respectively.
+//
+// ok is false if the instance can not be respolved.
+//
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+func (r *UnicastResolver) LookupInstance(
+	ctx context.Context,
+	instance, serviceType, domain string,
+) (_ ServiceInstance, ok bool, _ error) {
+	res, ok, err := r.query(
+		ctx,
+		ServiceInstanceName(instance, serviceType, domain),
+		dns.TypeANY,
+	)
+	if !ok || err != nil {
+		return ServiceInstance{}, false, err
+	}
+
+	i := ServiceInstance{
+		Instance:    instance,
+		ServiceType: serviceType,
+		Domain:      domain,
+	}
+
+	var hasSRV, hasTXT bool
+
+	for _, a := range res.Answer {
+		ttl := time.Duration(a.Header().Ttl) * time.Second
+		if i.TTL == 0 || ttl < i.TTL {
+			i.TTL = ttl
+		}
+
+		switch a := a.(type) {
+		case *dns.SRV:
+			hasSRV = true
+
+			i.TargetHost = strings.TrimSuffix(a.Target, ".")
+			i.TargetPort = a.Port
+			i.Priority = a.Priority
+			i.Weight = a.Weight
+
+		case *dns.TXT:
+			hasTXT = true
+			for _, pair := range a.Txt {
+				if _, err := i.Attributes.FromTXT(pair); err != nil {
+					return ServiceInstance{}, false, fmt.Errorf("unable to parse TXT record: %w", err)
+				}
+			}
+		}
+	}
+
+	return i, hasSRV && hasTXT, nil
 }
 
 // query performs a DNS query against all of the servers in r.Config.

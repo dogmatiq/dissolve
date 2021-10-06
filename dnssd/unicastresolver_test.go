@@ -32,6 +32,7 @@ var _ = Context("UnicastResolver", func() {
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
+			TTL:         DefaultTTL / 2, // Use something other than the default for LookupInstance() test
 		}
 		instanceA.Attributes.Set("<key>", []byte("<instance-a>"))
 
@@ -123,6 +124,21 @@ var _ = Context("UnicastResolver", func() {
 			Expect(serviceTypes).To(ContainElements(
 				"Instance A",
 			))
+		})
+	})
+
+	Describe("func LookupServiceInstance()", func() {
+		It("returns complete information about the service instance", func() {
+			i, ok, err := resolver.LookupInstance(ctx, "Instance A", "_http._tcp", "local")
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(ok).To(BeTrue())
+			Expect(i).To(Equal(instanceA))
+		})
+
+		It("returns false if no such instance exists", func() {
+			_, ok, err := resolver.LookupInstance(ctx, "Instance X", "_http._tcp", "local")
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(ok).To(BeFalse())
 		})
 	})
 })
