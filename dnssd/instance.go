@@ -6,25 +6,35 @@ import (
 	"time"
 )
 
-// Instance is a DNS-SD service instance.
-type Instance struct {
-	// Name is the service instance's unqualified name. That is, without the
-	// service or domain components.
-	Name string
+// ServiceInstance encapsulates information about a single DNS-SD service
+// instance.
+type ServiceInstance struct {
+	// Instance is the service instance's unqualified name.
+	//
+	// For example, "Living Room TV".
+	//
+	// This is the "<instance>" portion of the "service instance name", as
+	// described in https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+	Instance string
 
-	// Service is the type of service that the instance provides.
+	// ServiceType is the type of service that the instance provides.
 	//
 	// For example "_http._tcp", or "_airplay._tcp".
 	//
-	// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.2.
-	Service string
+	// This is the "<service>" portion of the "service instance name", as
+	// described in https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+	ServiceType string
 
 	// Domain is the domain under which the instance is advertised.
 	//
 	// That is, the domain name that contains the DNS-SD records SRV, PTR and
 	// TXT records.
 	//
-	// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.3
+	// This name is often set to "local" when using Multicast DNS (Bonjour,
+	// Zerconf), but may be any valid domain name.
+	//
+	// This is the "<domain>" portion of the "service instance name", as
+	// described in https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
 	Domain string
 
 	// TargetHost is the fully-qualified hostname of the machine that hosts the
@@ -35,13 +45,6 @@ type Instance struct {
 
 	// TargetPort is TCP or UDP port on which the service is provided.
 	TargetPort uint16
-
-	// Attributes contains a set of attributes that provide additional
-	// information about the service instance.
-	//
-	// Attributes are encoded in the instance's TXT record, as per
-	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.3.
-	Attributes Attributes
 
 	// Priority is the priority of the instance within the pool of instances
 	// that  offer the same service for the same domain.
@@ -62,24 +65,34 @@ type Instance struct {
 	// See https://datatracker.ietf.org/doc/html/rfc2782.
 	Weight uint16
 
+	// Attributes contains a set of attributes that provide additional
+	// information about the service instance.
+	//
+	// Attributes are encoded in the instance's TXT record, as per
+	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.3.
+	Attributes Attributes
+
 	// TTL is the time-to-live of the instance's DNS records.
 	TTL time.Duration
 }
 
-// FullyQualifiedName returns the fully-qualified instance name of this
-// instance, including the name, service and domain components.
+// ServiceInstanceName returns the fully-qualfied DNS domain name that is
+// queried to lookup records about a single service instance.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1 for a
-// description of how fully-qualified service names are structured.
-func (i Instance) FullyQualifiedName() string {
-	return EscapeInstanceName(i.Name) + "." + InstanceEnumerationDomain(i.Service, i.Domain)
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+func ServiceInstanceName(instance, serviceType, domain string) string {
+	return EscapeInstance(instance) + "." + InstanceEnumerationDomain(serviceType, domain)
 }
 
-// EscapeInstanceName escapes a service instance name for use within DNS
+// needsEscape is a string containing runes that must be escaped when they
+// appear in an instance name.
+const needsEscape = `. '@;()"\`
+
+// EscapeInstance escapes a service instance name for use within DNS
 // records.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.3
-func EscapeInstanceName(n string) string {
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.3.
+func EscapeInstance(instance string) string {
 	// https://datatracker.ietf.org/doc/html/rfc6763#section-4.3
 	//
 	// This document RECOMMENDS that if concatenating the three portions of
@@ -91,35 +104,29 @@ func EscapeInstanceName(n string) string {
 
 	var w strings.Builder
 
-	for {
-		i := strings.IndexAny(n, `.\`)
-		if i == -1 {
-			w.WriteString(n)
-			break
+	for _, r := range instance {
+		if strings.ContainsRune(needsEscape, r) {
+			w.WriteRune('\\')
 		}
 
-		w.WriteString(n[:i])
-		w.WriteByte('\\')
-		w.WriteByte(n[i])
-		n = n[i+1:]
+		w.WriteRune(r)
 	}
 
 	return w.String()
 }
 
-// ParseInstanceName parses a service instance name.
+// ParseInstance parses the "<instance>" portion of a service instance name.
 //
-// n must be an escaped service instance name, either relative or fully
-// qualified. Parsing stops at the first unescaped dot.
+// The given name must be either an escaped "<instance>" portion of a
+// fully-qualified "service instance name", or the fully-qualified "service
+// instance name" itself. Parsing stops at the first unescaped dot.
 //
-// name is the parsed and unescaped instance name. tail is the remaining
+// instance is the parsed and unescaped instance name. tail is the remaining
 // unparsed portion of n, not including the separating dot.
 //
-// If n contains only a single label (that is, does not contain any unescaped
-// dots), tail is empty.
-func ParseInstanceName(n string) (name, tail string, err error) {
-	var w strings.Builder
-
+// tail is empty if name is just the "<instance>" portion (that is, it does not
+// contain any unescaped dots).
+func ParseInstance(name string) (instance, tail string, err error) {
 	// https://tools.ietf.org/html/rfc6763#section-4.3
 	//
 	// This document RECOMMENDS that if concatenating the three portions of
@@ -128,23 +135,21 @@ func ParseInstanceName(n string) (name, tail string, err error) {
 	// preceding literal dots with a backslash (so "." becomes "\.").
 	// Likewise, any backslashes in the <Instance> portion should also be
 	// escaped by preceding them with a backslash (so "\" becomes "\\").
+	var w strings.Builder
 	escaped := false
 
-	// Iterate over bytes (not runes, hence not using range keyword).
-	for i := 0; i < len(n); i++ {
-		ch := n[i]
-
+	for i, r := range name {
 		if escaped {
 			escaped = false
-		} else if ch == '\\' {
+		} else if r == '\\' {
 			escaped = true
 			continue
-		} else if ch == '.' {
-			tail = n[i+1:]
+		} else if r == '.' {
+			tail = name[i+1:] // we know '.' is a single byte
 			break
 		}
 
-		w.WriteByte(ch)
+		w.WriteRune(r)
 	}
 
 	if escaped {

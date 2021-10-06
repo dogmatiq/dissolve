@@ -10,20 +10,97 @@ import (
 )
 
 var _ = Context("DNS records", func() {
-	var instance Instance
+	var instance ServiceInstance
 
 	BeforeEach(func() {
-		instance = Instance{
-			Name:       "Living Room TV.",
-			Service:    "_airplay._tcp",
-			Domain:     "local",
-			TargetHost: "host.example.org",
-			TargetPort: 12345,
-			Priority:   10,
-			Weight:     20,
+		instance = ServiceInstance{
+			Instance:    "Living Room TV.",
+			ServiceType: "_airplay._tcp",
+			Domain:      "local",
+			TargetHost:  "host.example.org",
+			TargetPort:  12345,
+			Priority:    10,
+			Weight:      20,
 		}
 
 		instance.Attributes.Set("<key>", []byte("<value>"))
+	})
+
+	Describe("func NewRecords()", func() {
+		It("returns all of the records required to announce a service instance", func() {
+			records := NewRecords(instance)
+
+			Expect(records).To(ConsistOf(
+				&dns.PTR{
+					Hdr: dns.RR_Header{
+						Name:   `_airplay._tcp.local.`,
+						Rrtype: dns.TypePTR,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Ptr: `Living\ Room\ TV\.._airplay._tcp.local.`,
+				},
+				&dns.SRV{
+					Hdr: dns.RR_Header{
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeSRV,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Target:   "host.example.org.",
+					Port:     12345,
+					Priority: 10,
+					Weight:   20,
+				},
+				&dns.TXT{
+					Hdr: dns.RR_Header{
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeTXT,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Txt: []string{"<key>=<value>"},
+				},
+			))
+		})
+
+		It("adds A and AAAA records if the WithIPAddress() option is used", func() {
+			records := NewRecords(
+				instance,
+				WithIPAddress(net.IPv4(192, 168, 20, 1)),
+				WithIPAddress(net.ParseIP("fe80::1ce5:3c8b:36f:53cf")),
+			)
+
+			Expect(records).To(ContainElements(
+				&dns.A{
+					Hdr: dns.RR_Header{
+						Name:   `host.example.org.`,
+						Rrtype: dns.TypeA,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					A: net.IPv4(192, 168, 20, 1).To4(),
+				},
+				&dns.AAAA{
+					Hdr: dns.RR_Header{
+						Name:   `host.example.org.`,
+						Rrtype: dns.TypeAAAA,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					AAAA: net.IPv4(192, 168, 20, 1).To16(),
+				},
+				&dns.AAAA{
+					Hdr: dns.RR_Header{
+						Name:   `host.example.org.`,
+						Rrtype: dns.TypeAAAA,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					AAAA: net.IP{0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0xe5, 0x3c, 0x8b, 0x03, 0x6f, 0x53, 0xcf},
+				},
+			))
+		})
 	})
 
 	Describe("func NewPTRRecord()", func() {
@@ -38,7 +115,7 @@ var _ = Context("DNS records", func() {
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					Ptr: `Living Room TV\.._airplay._tcp.local.`,
+					Ptr: `Living\ Room\ TV\.._airplay._tcp.local.`,
 				},
 			))
 		})
@@ -51,7 +128,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.SRV{
 					Hdr: dns.RR_Header{
-						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
 						Rrtype: dns.TypeSRV,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -72,7 +149,7 @@ var _ = Context("DNS records", func() {
 			Expect(rec).To(Equal(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
-						Name:   `Living Room TV\.._airplay._tcp.local.`,
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
 						Rrtype: dns.TypeTXT,
 						Class:  dns.ClassINET,
 						Ttl:    120,
@@ -146,6 +223,24 @@ var _ = Context("DNS records", func() {
 						Ttl:    120,
 					},
 					AAAA: net.IPv4(192, 168, 20, 1).To16(),
+				},
+			))
+		})
+	})
+
+	Describe("func NewServiceTypePTRRecord()", func() {
+		It("returns the expected PTR record", func() {
+			rec := NewServiceTypePTRRecord("_airplay._tcp", "local", 0)
+
+			Expect(rec).To(Equal(
+				&dns.PTR{
+					Hdr: dns.RR_Header{
+						Name:   `_services._dns-sd._udp.local.`,
+						Rrtype: dns.TypePTR,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Ptr: `_airplay._tcp.local.`,
 				},
 			))
 		})
