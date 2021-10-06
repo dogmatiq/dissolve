@@ -301,6 +301,19 @@ var _ = Describe("type Attributes", func() {
 					"<key-3>=",
 				))
 			})
+
+			It("always places the 'version tag' attribute at the beginning", func() {
+				attrs.SetFlag("<key-1>")
+				attrs.Set("<key-2>", []byte("<value>"))
+				attrs.Set("<key-3>", nil)
+				attrs.Set("txtvers", []byte("1"))
+
+				// Repeat test several times to ensure it's not just passing due
+				// to Go's psuedo-random map ordering.
+				for i := 0; i < 1000; i++ {
+					Expect(attrs.ToTXT()[0]).To(Equal("txtvers=1"))
+				}
+			})
 		})
 	})
 })

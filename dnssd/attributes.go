@@ -179,6 +179,13 @@ func (a *Attributes) ToTXT() []string {
 			// boolean attribute, simply identified as being present, with no
 			// value.
 			pairs = append(pairs, k)
+		} else if k == "txtvers" && len(pairs) > 0 {
+			// https://datatracker.ietf.org/doc/html/rfc6763#section-6.7
+			//
+			// Always place the 'version tag' attribute ("txtvers") in the first
+			// entry of the TXT record.
+			pairs = append(pairs, pairs[0])
+			pairs[0] = "txtvers=" + string(v)
 		} else {
 			pairs = append(pairs, k+"="+string(v))
 		}
