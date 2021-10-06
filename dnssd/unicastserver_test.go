@@ -266,18 +266,9 @@ var _ = Context("UnicastServer", func() {
 				res, _, err := client.ExchangeContext(ctx, req, "127.0.0.1:65353")
 				Expect(err).ShouldNot(HaveOccurred())
 				Expect(res).NotTo(BeNil())
-
-				// Note: IP in the AAAA record is rendered as IPv4 instead of
-				// IPv6. This is because miekg/dns.AAAA.String() calls
-				// net.IP.String() which will always favour an IPv4
-				// representation if possible.
-				//
-				// Tests in records_test.go verify that we are not actually
-				// producing an AAAA record with an IPv4 address in it.
 				expectRecords(
 					res,
 					`b.example.org.	120	IN	A	192.168.20.1`,
-					`b.example.org.	120	IN	AAAA	192.168.20.1`,
 					"b.example.org.	120	IN	AAAA	fe80::1ce5:3c8b:36f:53cf",
 				)
 			})

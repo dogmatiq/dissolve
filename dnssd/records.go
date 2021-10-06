@@ -28,9 +28,7 @@ func NewRecords(i ServiceInstance, options ...AdvertiseOption) []dns.RR {
 	for _, ip := range opts.IPAddresses {
 		if ip.To4() != nil {
 			records = append(records, NewARecord(i, ip))
-		}
-
-		if ip.To16() != nil {
+		} else if ip.To16() != nil {
 			records = append(records, NewAAAARecord(i, ip))
 		}
 	}
@@ -126,9 +124,13 @@ func NewARecord(i ServiceInstance, ip net.IP) *dns.A {
 //
 // ip must be a valid IPv4 or IPv6 address.
 func NewAAAARecord(i ServiceInstance, ip net.IP) *dns.AAAA {
+	if ip.To4() != nil {
+		panic("can not produce an AAAA record for an IPv4 address")
+	}
+
 	ip = ip.To16()
 	if ip == nil {
-		panic("IP address is not a valid IP address")
+		panic("IP address is not a valid IPv6 address")
 	}
 
 	return &dns.AAAA{

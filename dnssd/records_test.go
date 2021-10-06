@@ -88,15 +88,6 @@ var _ = Context("DNS records", func() {
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
-					AAAA: net.IPv4(192, 168, 20, 1).To16(),
-				},
-				&dns.AAAA{
-					Hdr: dns.RR_Header{
-						Name:   `host.example.org.`,
-						Rrtype: dns.TypeAAAA,
-						Class:  dns.ClassINET,
-						Ttl:    120,
-					},
 					AAAA: net.IP{0xfe, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0xe5, 0x3c, 0x8b, 0x03, 0x6f, 0x53, 0xcf},
 				},
 			))
@@ -211,20 +202,16 @@ var _ = Context("DNS records", func() {
 			))
 		})
 
-		It("returns the expected AAAA record for an IPv4 address", func() {
-			rec := NewAAAARecord(instance, net.IPv4(192, 168, 20, 1))
+		It("panics if given an IPv4 address", func() {
+			Expect(func() {
+				NewAAAARecord(instance, net.IPv4(192, 168, 20, 1).To4())
+			}).To(PanicWith("can not produce an AAAA record for an IPv4 address"))
+		})
 
-			Expect(rec).To(Equal(
-				&dns.AAAA{
-					Hdr: dns.RR_Header{
-						Name:   `host.example.org.`,
-						Rrtype: dns.TypeAAAA,
-						Class:  dns.ClassINET,
-						Ttl:    120,
-					},
-					AAAA: net.IPv4(192, 168, 20, 1).To16(),
-				},
-			))
+		It("panics if given an IPv4 address encoded within an IPv6 address", func() {
+			Expect(func() {
+				NewAAAARecord(instance, net.IPv4(192, 168, 20, 1).To16())
+			}).To(PanicWith("can not produce an AAAA record for an IPv4 address"))
 		})
 	})
 
