@@ -70,7 +70,17 @@ type ServiceInstance struct {
 	//
 	// Attributes are encoded in the instance's TXT record, as per
 	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.3.
-	Attributes Attributes
+	//
+	// Each element in the slice corresponds to the attributes encoded in a
+	// single TXT record.
+	//
+	// Each instance MUST have at least one TXT record and MAY have multiple TXT
+	// records, although this is rarely used in practice, see
+	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.8.
+	//
+	// An empty slice is a valid representation of an instance with a single
+	// empty TXT record.
+	Attributes []Attributes
 
 	// TTL is the time-to-live of the instance's DNS records.
 	TTL time.Duration

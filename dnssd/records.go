@@ -18,7 +18,10 @@ func NewRecords(i ServiceInstance, options ...AdvertiseOption) []dns.RR {
 	records := []dns.RR{
 		NewPTRRecord(i),
 		NewSRVRecord(i),
-		NewTXTRecord(i),
+	}
+
+	for _, rr := range NewTXTRecords(i) {
+		records = append(records, rr)
 	}
 
 	for _, subType := range opts.ServiceSubTypes {
@@ -69,19 +72,50 @@ func NewSRVRecord(i ServiceInstance) *dns.SRV {
 	}
 }
 
-// NewTXTRecord returns a TXT record containing a service instance's attributes.
+// NewTXTRecords returns TXT records containing a service instance's attributes.
+//
+// It returns one TXT record for each non-empty set of attributes in
+// i.Attributes.
+//
+// If there are no attributes, it returns a single empty TXT record.
 //
 // See https://datatracker.ietf.org/doc/html/rfc6763#section-6.
-func NewTXTRecord(i ServiceInstance) *dns.TXT {
-	return &dns.TXT{
-		Hdr: dns.RR_Header{
-			Name:   ServiceInstanceName(i.Instance, i.ServiceType, i.Domain) + ".",
-			Rrtype: dns.TypeTXT,
-			Class:  dns.ClassINET,
-			Ttl:    ttlInSeconds(i.TTL),
-		},
-		Txt: i.Attributes.ToTXT(),
+// See https://datatracker.ietf.org/doc/html/rfc6763#section-6.8.
+func NewTXTRecords(i ServiceInstance) []*dns.TXT {
+	header := dns.RR_Header{
+		Name:   ServiceInstanceName(i.Instance, i.ServiceType, i.Domain) + ".",
+		Rrtype: dns.TypeTXT,
+		Class:  dns.ClassINET,
+		Ttl:    ttlInSeconds(i.TTL),
 	}
+
+	var records []*dns.TXT
+
+	for _, attrs := range i.Attributes {
+		if !attrs.IsEmpty() {
+			records = append(
+				records,
+				&dns.TXT{
+					Hdr: header,
+					Txt: attrs.ToTXT(),
+				},
+			)
+		}
+	}
+
+	// Each instance must have at least one TXT record, so even if i.Attributes
+	// is empty, or only contained empty collections, we still add an empty text
+	// record.
+	if len(records) == 0 {
+		records = append(
+			records,
+			&dns.TXT{
+				Hdr: header,
+			},
+		)
+	}
+
+	return records
 }
 
 // NewServiceSubTypePTRRecord returns a PTR record used to advertise a service

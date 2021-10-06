@@ -32,9 +32,10 @@ var _ = Context("UnicastResolver", func() {
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
+			Attributes:  []Attributes{{}},
 			TTL:         DefaultTTL / 2, // Use something other than the default for LookupInstance() test
 		}
-		instanceA.Attributes.Set("<key>", []byte("<instance-a>"))
+		instanceA.Attributes[0].Set("<key>", []byte("<instance-a>"))
 
 		instanceB = ServiceInstance{
 			Instance:    "Instance B",
@@ -44,8 +45,10 @@ var _ = Context("UnicastResolver", func() {
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
+			Attributes:  []Attributes{{}, {}},
 		}
-		instanceB.Attributes.Set("<key>", []byte("<instance-b>"))
+		instanceB.Attributes[0].Set("<key>", []byte("<instance-b0>"))
+		instanceB.Attributes[1].Set("<key>", []byte("<instance-b1>"))
 
 		instanceC = ServiceInstance{
 			Instance:    "Instance C",
@@ -56,7 +59,6 @@ var _ = Context("UnicastResolver", func() {
 			Priority:    10,
 			Weight:      20,
 		}
-		instanceC.Attributes.Set("<key>", []byte("<instance-c>"))
 
 		server = &UnicastServer{}
 

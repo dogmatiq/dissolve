@@ -3,6 +3,7 @@ package dnssd
 import (
 	"context"
 	"fmt"
+	"math"
 	"net"
 	"strings"
 	"time"
@@ -160,34 +161,56 @@ func (r *UnicastResolver) LookupInstance(
 		Domain:      domain,
 	}
 
-	var hasSRV, hasTXT bool
+	var (
+		hasSRV, hasTXT bool
+		minTTL         uint32 = math.MaxUint32
+	)
 
-	for _, a := range res.Answer {
-		ttl := time.Duration(a.Header().Ttl) * time.Second
-		if i.TTL == 0 || ttl < i.TTL {
-			i.TTL = ttl
+	for _, rr := range res.Answer {
+		ttl := rr.Header().Ttl
+		if ttl < minTTL {
+			minTTL = ttl
 		}
 
-		switch a := a.(type) {
+		switch rr := rr.(type) {
 		case *dns.SRV:
 			hasSRV = true
-
-			i.TargetHost = strings.TrimSuffix(a.Target, ".")
-			i.TargetPort = a.Port
-			i.Priority = a.Priority
-			i.Weight = a.Weight
-
+			unpackSRV(&i, rr)
 		case *dns.TXT:
 			hasTXT = true
-			for _, pair := range a.Txt {
-				if _, err := i.Attributes.FromTXT(pair); err != nil {
-					return ServiceInstance{}, false, fmt.Errorf("unable to parse TXT record: %w", err)
-				}
+			if err := unpackTXT(&i, rr); err != nil {
+				return ServiceInstance{}, false, err
 			}
 		}
 	}
 
+	i.TTL = time.Duration(minTTL) * time.Second
+
 	return i, hasSRV && hasTXT, nil
+}
+
+// unpackSRV unpacks information from a SRV record into i.
+func unpackSRV(i *ServiceInstance, rr *dns.SRV) {
+	i.TargetHost = strings.TrimSuffix(rr.Target, ".")
+	i.TargetPort = rr.Port
+	i.Priority = rr.Priority
+	i.Weight = rr.Weight
+}
+
+// unpackSRV unpacks information from a TXT record into i.
+func unpackTXT(i *ServiceInstance, rr *dns.TXT) error {
+	var attrs Attributes
+	for _, pair := range rr.Txt {
+		if _, err := attrs.FromTXT(pair); err != nil {
+			return fmt.Errorf("unable to parse TXT record: %w", err)
+		}
+	}
+
+	if !attrs.IsEmpty() {
+		i.Attributes = append(i.Attributes, attrs)
+	}
+
+	return nil
 }
 
 // query performs a DNS query against all of the servers in r.Config.

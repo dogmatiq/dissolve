@@ -119,6 +119,11 @@ func (a *Attributes) Delete(keys ...string) {
 	}
 }
 
+// IsEmpty returns true if there are no attributes present.
+func (a *Attributes) IsEmpty() bool {
+	return len(a.m) == 0
+}
+
 // FromTXT parses a single attribute from a values within in a DNS-SD service
 // instance's TXT record.
 //

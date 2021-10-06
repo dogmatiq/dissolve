@@ -21,9 +21,10 @@ var _ = Context("DNS records", func() {
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
+			Attributes:  []Attributes{{}},
 		}
 
-		instance.Attributes.Set("<key>", []byte("<value>"))
+		instance.Attributes[0].Set("<key>", []byte("<value>"))
 	})
 
 	Describe("func NewRecords()", func() {
@@ -133,11 +134,11 @@ var _ = Context("DNS records", func() {
 		})
 	})
 
-	Describe("func NewTXTRecord()", func() {
-		It("returns the expected TXT record", func() {
-			rec := NewTXTRecord(instance)
+	Describe("func NewTXTRecords()", func() {
+		It("returns the expected TXT records", func() {
+			rec := NewTXTRecords(instance)
 
-			Expect(rec).To(Equal(
+			Expect(rec).To(ConsistOf(
 				&dns.TXT{
 					Hdr: dns.RR_Header{
 						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
@@ -146,6 +147,84 @@ var _ = Context("DNS records", func() {
 						Ttl:    120,
 					},
 					Txt: []string{"<key>=<value>"},
+				},
+			))
+		})
+
+		It("returns the expected TXT records when there are multiple attribute collections", func() {
+			var attrs Attributes
+			attrs.Set("<key-2>", []byte("<value-2>"))
+			instance.Attributes = append(instance.Attributes, attrs)
+
+			rec := NewTXTRecords(instance)
+
+			Expect(rec).To(ConsistOf(
+				&dns.TXT{
+					Hdr: dns.RR_Header{
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeTXT,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Txt: []string{"<key>=<value>"},
+				},
+				&dns.TXT{
+					Hdr: dns.RR_Header{
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeTXT,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Txt: []string{"<key-2>=<value-2>"},
+				},
+			))
+		})
+
+		It("ignores empty attribute collections", func() {
+			instance.Attributes = append(instance.Attributes, Attributes{})
+			rec := NewTXTRecords(instance)
+
+			Expect(rec).To(ConsistOf(
+				&dns.TXT{
+					Hdr: dns.RR_Header{
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeTXT,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+					Txt: []string{"<key>=<value>"},
+				},
+			))
+		})
+
+		It("returns a single empty record if there are no attributes", func() {
+			instance.Attributes = nil
+			rec := NewTXTRecords(instance)
+
+			Expect(rec).To(ConsistOf(
+				&dns.TXT{
+					Hdr: dns.RR_Header{
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeTXT,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
+				},
+			))
+		})
+
+		It("returns a single empty record if there are only empty attribute collections", func() {
+			instance.Attributes = []Attributes{{}, {}}
+			rec := NewTXTRecords(instance)
+
+			Expect(rec).To(ConsistOf(
+				&dns.TXT{
+					Hdr: dns.RR_Header{
+						Name:   `Living\ Room\ TV\.._airplay._tcp.local.`,
+						Rrtype: dns.TypeTXT,
+						Class:  dns.ClassINET,
+						Ttl:    120,
+					},
 				},
 			))
 		})

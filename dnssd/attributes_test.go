@@ -207,6 +207,30 @@ var _ = Describe("type Attributes", func() {
 		})
 	})
 
+	Describe("func IsEmpty()", func() {
+		It("returns true if there are no attributes", func() {
+			Expect(attrs.IsEmpty()).To(BeTrue())
+
+			attrs.Set("<key>", []byte("<value>"))
+			attrs.SetFlag("<flag>")
+
+			attrs.Delete("<key>")
+			attrs.Delete("<flag>")
+
+			Expect(attrs.IsEmpty()).To(BeTrue())
+		})
+
+		It("returns false if there are key/value pairs", func() {
+			attrs.Set("<key>", []byte("<value>"))
+			Expect(attrs.IsEmpty()).To(BeFalse())
+		})
+
+		It("returns false if there are flags", func() {
+			attrs.SetFlag("<key>")
+			Expect(attrs.IsEmpty()).To(BeFalse())
+		})
+	})
+
 	Context("TXT records", func() {
 		Describe("func FromTXT()", func() {
 			It("parses flags", func() {
