@@ -263,18 +263,23 @@ func (s *UnicastServer) buildResponse(req *dns.Msg) (*dns.Msg, bool) {
 	s.m.RLock()
 	defer s.m.RUnlock()
 
-	// Copy the records to res.Answer. We don't want to reference the slices
-	// inside s.records as they may be modified as soon as s.m is unlocked.
-	if q.Qtype == dns.TypeANY {
-		for _, records := range s.records[q.Name] {
-			res.Answer = append(res.Answer, records...)
-		}
-	} else {
-		res.Answer = append(res.Answer, s.records[q.Name][q.Qtype]...)
+	records := s.records[q.Name]
+
+	if len(records) == 0 {
+		res.Rcode = dns.RcodeNameError
+		return res, true
 	}
 
-	if len(res.Answer) == 0 && len(s.records[q.Name]) == 0 {
-		res.Rcode = dns.RcodeNameError
+	// Always use a copy of the records in res.Answer.
+	//
+	// We don't want to reference the original slice(s) from s.records as they
+	// may be modified as soon as s.m is unlocked.
+	if q.Qtype == dns.TypeANY {
+		for _, recs := range records {
+			res.Answer = append(res.Answer, recs...)
+		}
+	} else {
+		res.Answer = append([]dns.RR{}, records[q.Qtype]...)
 	}
 
 	return res, true
