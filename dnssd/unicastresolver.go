@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/miekg/dns"
+	"golang.org/x/sync/errgroup"
 )
 
 // UnicastResolver makes DNS-SD queries using unicast DNS requests.
@@ -146,45 +147,68 @@ func (r *UnicastResolver) LookupInstance(
 	ctx context.Context,
 	instance, serviceType, domain string,
 ) (_ ServiceInstance, ok bool, _ error) {
-	res, ok, err := r.query(
-		ctx,
-		ServiceInstanceName(instance, serviceType, domain),
-		dns.TypeANY,
-	)
-	if !ok || err != nil {
+	queryName := ServiceInstanceName(instance, serviceType, domain)
+	responses := make(chan *dns.Msg, 2)
+
+	// Note that we make separate queries for SRV and TXT records. We do this
+	// (rather than using an ANY query) as there is no requirement within the
+	// DNS specification that servers respond with ALL records in response to an
+	// ANY query.
+	//
+	// This common misconception is explained in the Multicast DNS RFC at
+	// https://datatracker.ietf.org/doc/html/rfc6762#section-6.5.
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		res, ok, err := r.query(ctx, queryName, dns.TypeSRV)
+		if ok {
+			responses <- res
+		}
+		return err
+	})
+
+	g.Go(func() error {
+		res, ok, err := r.query(ctx, queryName, dns.TypeTXT)
+		if ok {
+			responses <- res
+		}
+		return err
+	})
+
+	if err := g.Wait(); err != nil {
 		return ServiceInstance{}, false, err
 	}
+
+	close(responses)
 
 	i := ServiceInstance{
 		Instance:    instance,
 		ServiceType: serviceType,
 		Domain:      domain,
+		TTL:         math.MaxInt64,
 	}
 
-	var (
-		hasSRV, hasTXT bool
-		minTTL         uint32 = math.MaxUint32
-	)
+	var hasSRV, hasTXT bool
 
-	for _, rr := range res.Answer {
-		ttl := rr.Header().Ttl
-		if ttl < minTTL {
-			minTTL = ttl
-		}
+	for res := range responses {
+		for _, rr := range res.Answer {
+			ttl := time.Duration(rr.Header().Ttl) * time.Second
+			if ttl < i.TTL {
+				i.TTL = ttl
+			}
 
-		switch rr := rr.(type) {
-		case *dns.SRV:
-			hasSRV = true
-			unpackSRV(&i, rr)
-		case *dns.TXT:
-			hasTXT = true
-			if err := unpackTXT(&i, rr); err != nil {
-				return ServiceInstance{}, false, err
+			switch rr := rr.(type) {
+			case *dns.SRV:
+				hasSRV = true
+				unpackSRV(&i, rr)
+			case *dns.TXT:
+				hasTXT = true
+				if err := unpackTXT(&i, rr); err != nil {
+					return ServiceInstance{}, false, err
+				}
 			}
 		}
 	}
-
-	i.TTL = time.Duration(minTTL) * time.Second
 
 	return i, hasSRV && hasTXT, nil
 }
@@ -243,7 +267,12 @@ func (r *UnicastResolver) query(
 
 		// The server responded authoratatively, even if it was only to indicate
 		// that this domain or record type does not exist.
-		if res.Rcode == dns.RcodeNameError || res.Rcode == dns.RcodeSuccess {
+		if res.Rcode == dns.RcodeNameError {
+			break
+		}
+
+		// The server had an answer to this query.
+		if res.Rcode == dns.RcodeSuccess {
 			return res, true, nil
 		}
 	}
