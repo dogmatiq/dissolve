@@ -3,7 +3,7 @@ module github.com/dogmatiq/dissolve
 go 1.17
 
 require (
-	github.com/miekg/dns v1.1.46
+	github.com/miekg/dns v1.1.47
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.18.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
