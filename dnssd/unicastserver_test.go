@@ -330,11 +330,11 @@ var _ = Context("UnicastServer", func() {
 			go func() {
 				time.Sleep(50 * time.Millisecond)
 				cancel()
-				time.Sleep(50 * time.Millisecond)
-				close(errors)
 			}()
 
-			Expect(<-errors).To(Equal(context.Canceled))
+			var err error
+			Eventually(errors).Should(Receive(&err))
+			Expect(err).To(Equal(context.Canceled))
 		})
 	})
 })
