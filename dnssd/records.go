@@ -111,6 +111,7 @@ func NewTXTRecords(i ServiceInstance) []*dns.TXT {
 			records,
 			&dns.TXT{
 				Hdr: header,
+				Txt: []string{""},
 			},
 		)
 	}

@@ -209,6 +209,7 @@ var _ = Context("DNS records", func() {
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
+					Txt: []string{""},
 				},
 			))
 		})
@@ -225,6 +226,7 @@ var _ = Context("DNS records", func() {
 						Class:  dns.ClassINET,
 						Ttl:    120,
 					},
+					Txt: []string{""},
 				},
 			))
 		})
