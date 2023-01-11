@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"golang.org/x/exp/slices"
 )
 
 // Attributes represents the set of attributes conveyed in a DNS-SD service
@@ -168,30 +170,56 @@ func (a *Attributes) FromTXT(pair string) (ok bool, err error) {
 
 // ToTXT returns the string representation of each key/value pair, as they
 // appear in the TXT record.
+//
+// The result is deterministic (keys are sorted) to avoid unnecessary DNS churn
+// when the attributes are used to construct DNS records.
 func (a *Attributes) ToTXT() []string {
-	pairs := make([]string, 0, len(a.m))
+	type pair struct {
+		key   string
+		value []byte
+	}
 
+	pairs := make([]pair, 0, len(a.m))
 	for k, v := range a.m {
-		if v == nil {
+		pairs = append(pairs, pair{k, v})
+	}
+
+	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.7
+	//
+	// Always place the 'version tag' attribute ("txtvers") in the first
+	// entry of the TXT record.
+	const versionKey = "txtvers"
+
+	slices.SortFunc(
+		pairs,
+		func(a, b pair) bool {
+			if a.key == versionKey {
+				return true
+			}
+
+			if b.key == versionKey {
+				return false
+			}
+
+			return a.key < b.key
+		},
+	)
+
+	var result []string
+	for _, p := range pairs {
+		if p.value == nil {
 			// https://datatracker.ietf.org/doc/html/rfc6763#section-6.4
 			//
 			// If there is no '=' in a DNS-SD TXT record string, then it is a
 			// boolean attribute, simply identified as being present, with no
 			// value.
-			pairs = append(pairs, k)
-		} else if k == "txtvers" && len(pairs) > 0 {
-			// https://datatracker.ietf.org/doc/html/rfc6763#section-6.7
-			//
-			// Always place the 'version tag' attribute ("txtvers") in the first
-			// entry of the TXT record.
-			pairs = append(pairs, pairs[0])
-			pairs[0] = "txtvers=" + string(v)
+			result = append(result, p.key)
 		} else {
-			pairs = append(pairs, k+"="+string(v))
+			result = append(result, p.key+"="+string(p.value))
 		}
 	}
 
-	return pairs
+	return result
 }
 
 // mustNormalizeAttributeKey normalizes the DNS-SD TXT key, k, or panics if it

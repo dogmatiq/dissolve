@@ -302,16 +302,23 @@ var _ = Describe("type Attributes", func() {
 				))
 			})
 
-			It("always places the 'version tag' attribute at the beginning", func() {
-				attrs.SetFlag("<key-1>")
+			It("always places the 'version tag' attribute at the beginning, and sorts the other keys lexically", func() {
+				attrs.SetFlag("<key-3>")
 				attrs.Set("<key-2>", []byte("<value>"))
-				attrs.Set("<key-3>", nil)
+				attrs.Set("<key-1>", nil)
 				attrs.Set("txtvers", []byte("1"))
 
 				// Repeat test several times to ensure it's not just passing due
 				// to Go's psuedo-random map ordering.
 				for i := 0; i < 1000; i++ {
-					Expect(attrs.ToTXT()[0]).To(Equal("txtvers=1"))
+					Expect(attrs.ToTXT()).To(Equal(
+						[]string{
+							"txtvers=1",
+							"<key-1>=",
+							"<key-2>=<value>",
+							"<key-3>",
+						},
+					))
 				}
 			})
 		})
