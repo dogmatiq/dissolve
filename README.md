@@ -1,14 +1,17 @@
-# Dissolve
+<div align="center">
 
-[![Build Status](https://github.com/dogmatiq/dissolve/workflows/CI/badge.svg)](https://github.com/dogmatiq/dissolve/actions?workflow=CI)
-[![Code Coverage](https://img.shields.io/codecov/c/github/dogmatiq/dissolve/main.svg)](https://codecov.io/github/dogmatiq/dissolve)
-[![Latest Version](https://img.shields.io/github/tag/dogmatiq/dissolve.svg?label=semver)](https://semver.org)
-[![Documentation](https://img.shields.io/badge/go.dev-reference-007d9c)](https://pkg.go.dev/github.com/dogmatiq/dissolve)
-[![Go Report Card](https://goreportcard.com/badge/github.com/dogmatiq/dissolve)](https://goreportcard.com/report/github.com/dogmatiq/dissolve)
+# Dissolve
 
 Dissolve is a [DNS-SD](https://datatracker.ietf.org/doc/html/rfc6763),
 [Multicast DNS](https://datatracker.ietf.org/doc/html/rfc6762) and
 Zeroconf/Bonjour toolkit for Go.
+
+[![Documentation](https://img.shields.io/badge/go.dev-documentation-007d9c?&style=for-the-badge)](https://pkg.go.dev/github.com/dogmatiq/dissolve)
+[![Latest Version](https://img.shields.io/github/tag/dogmatiq/dissolve.svg?&style=for-the-badge&label=semver)](https://github.com/dogmatiq/dissolve/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/dogmatiq/dissolve/ci.yml?style=for-the-badge&branch=main)](https://github.com/dogmatiq/dissolve/actions/workflows/ci.yml)
+[![Code Coverage](https://img.shields.io/codecov/c/github/dogmatiq/dissolve/main.svg?style=for-the-badge)](https://codecov.io/github/dogmatiq/dissolve)
+
+</div>
 
 - DNS-based service discovery (aka DNS-SD) is a method of using a standard set
   of DNS records to describe network services so that they may be discovered by
