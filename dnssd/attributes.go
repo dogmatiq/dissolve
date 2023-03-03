@@ -12,7 +12,7 @@ import (
 // instance's TXT record.
 //
 // Each attribute may be either a key/value pair, where the value is a byte
-// slice, or a flag (called a boolean attribute in RFC-6763).
+// slice, or a flag (called a boolean attribute in RFC 6763).
 //
 // Pairs and flags occupy the same keyspace, meaning that it is not possible to
 // have a flag with the same name as a pair's key.
@@ -129,7 +129,7 @@ func (a *Attributes) IsEmpty() bool {
 // FromTXT parses a single attribute from a values within in a DNS-SD service
 // instance's TXT record.
 //
-// As per RFC-6763, TXT record values that begin with an '=' are ignored, in
+// As per RFC 6763, TXT record values that begin with an '=' are ignored, in
 // which case ok is false. Empty values are also ignored.
 func (a *Attributes) FromTXT(pair string) (ok bool, err error) {
 	if pair == "" {

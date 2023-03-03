@@ -15,12 +15,10 @@ Zeroconf/Bonjour toolkit for Go.
 
 - DNS-based service discovery (aka DNS-SD) is a method of using a standard set
   of DNS records to describe network services so that they may be discovered by
-  clients. DNS-SD is defined in
-  [RFC-6763](https://datatracker.ietf.org/doc/html/rfc6763).
+  clients. DNS-SD is defined in [RFC 6763].
 
 - Multicast DNS (aka mDNS) provides a way to respond to DNS queries without the
-  need for a centralised DNS server. mDNS is defined in
-  [RFC-6762](https://datatracker.ietf.org/doc/html/rfc6762).
+  need for a centralised DNS server. mDNS is defined in [RFC 6762].
 
 - The combination of these two technologies, wherein a multicast DNS server
   answers DNS-SD queries gives us Zero Configuration networking, commonly known
@@ -33,3 +31,8 @@ Zeroconf/Bonjour toolkit for Go.
 - Advertise DNS-SD services via common unicast DNS services (Route53, etc)
 - Expose methods for writing custom mDNS responders
 - Allow mDNS queries without CGO
+
+<!-- references -->
+
+[rfc 6762]: https://datatracker.ietf.org/doc/html/rfc6762
+[rfc 6763]: https://datatracker.ietf.org/doc/html/rfc6763

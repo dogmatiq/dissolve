@@ -289,7 +289,7 @@ var _ = Describe("type Attributes", func() {
 		})
 
 		Describe("func ToTXT()", func() {
-			It("returns TXT record values containing key/value pairs as per RFC-6763", func() {
+			It("returns TXT record values containing key/value pairs as per RFC 6763", func() {
 				attrs.SetFlag("<key-1>")
 				attrs.Set("<key-2>", []byte("<value>"))
 				attrs.Set("<key-3>", nil)
