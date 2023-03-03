@@ -69,7 +69,7 @@ func TypeEnumerationDomain(domain string) string {
 // Service instance enumeration is used to find all of the instances of a
 // specific service type on a specific domain.
 //
-// See https://tools.ietf.org/html/rfc6763#section-4.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.
 func InstanceEnumerationDomain(service, domain string) string {
 	return service + "." + domain
 }
@@ -86,7 +86,7 @@ func InstanceEnumerationDomain(service, domain string) string {
 // narrow those results to include only web servers that are printer control
 // panels.
 //
-// See https://tools.ietf.org/html/rfc6763#section-7.1
+// See https://www.rfc-editor.org/rfc/rfc6763#section-7.1
 func SelectiveInstanceEnumerationDomain(subType, serviceType, domain string) string {
 	return subType + "._sub." + InstanceEnumerationDomain(serviceType, domain)
 }

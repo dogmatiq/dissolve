@@ -137,7 +137,7 @@ func EscapeInstance(instance string) string {
 // tail is empty if name is just the "<instance>" portion (that is, it does not
 // contain any unescaped dots).
 func ParseInstance(name string) (instance, tail string, err error) {
-	// https://tools.ietf.org/html/rfc6763#section-4.3
+	// https://www.rfc-editor.org/rfc/rfc6763#section-4.3
 	//
 	// This document RECOMMENDS that if concatenating the three portions of
 	// a Service Instance Name, any dots in the <Instance> portion be

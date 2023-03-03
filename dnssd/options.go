@@ -17,7 +17,7 @@ func WithIPAddress(ip net.IP) AdvertiseOption {
 // WithServiceSubType is an announce option that advertises the service as
 // providing a specific service sub-type.
 //
-// See https://tools.ietf.org/html/rfc6763#section-7.1
+// See https://www.rfc-editor.org/rfc/rfc6763#section-7.1
 func WithServiceSubType(subType string) AdvertiseOption {
 	return func(opts *advertiseOptions) {
 		opts.ServiceSubTypes = append(opts.ServiceSubTypes, subType)
