@@ -28,7 +28,7 @@ type UnicastResolver struct {
 // domain suffix.  This is the "<service>" portion of the "service instance
 // name", For example "_http._tcp".
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 func (r *UnicastResolver) EnumerateServiceTypes(
 	ctx context.Context,
 	domain string,
@@ -67,7 +67,7 @@ func (r *UnicastResolver) EnumerateServiceTypes(
 // It returns a slice of the instance names. This is the "<instance>" portion of
 // the "service instance name", for example, "Boardroom Printer".
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 func (r *UnicastResolver) EnumerateInstances(
 	ctx context.Context,
 	serviceType, domain string,
@@ -107,7 +107,7 @@ func (r *UnicastResolver) EnumerateInstances(
 // It returns a slice of the instance names. This is the "<instance>" portion of
 // the "service instance name", for example, "Boardroom Printer".
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 func (r *UnicastResolver) EnumerateInstancesBySubType(
 	ctx context.Context,
 	subType, serviceType, domain string,
@@ -142,7 +142,7 @@ func (r *UnicastResolver) EnumerateInstancesBySubType(
 //
 // ok is false if the instance can not be respolved.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 func (r *UnicastResolver) LookupInstance(
 	ctx context.Context,
 	instance, serviceType, domain string,
@@ -156,7 +156,7 @@ func (r *UnicastResolver) LookupInstance(
 	// ANY query.
 	//
 	// This common misconception is explained in the Multicast DNS RFC at
-	// https://datatracker.ietf.org/doc/html/rfc6762#section-6.5.
+	// https://www.rfc-editor.org/rfc/rfc6762#section-6.5.
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {

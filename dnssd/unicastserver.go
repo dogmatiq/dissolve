@@ -243,7 +243,7 @@ func (s *UnicastServer) buildResponse(req *dns.Msg) (*dns.Msg, bool) {
 	// multiple, but in practice this is nonsensical.
 	//
 	// See https://stackoverflow.com/questions/4082081/requesting-a-and-aaaa-records-in-single-dns-query/4085631#4085631
-	// See https://datatracker.ietf.org/doc/html/rfc1035
+	// See https://www.rfc-editor.org/rfc/rfc1035
 	if len(req.Question) != 1 {
 		return nil, false
 	}

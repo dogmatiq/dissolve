@@ -14,7 +14,7 @@ type ServiceInstance struct {
 	// For example, "Boardroom Printer".
 	//
 	// This is the "<instance>" portion of the "service instance name", as
-	// described in https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+	// described in https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 	Instance string
 
 	// ServiceType is the type of service that the instance provides.
@@ -22,7 +22,7 @@ type ServiceInstance struct {
 	// For example "_http._tcp", or "_airplay._tcp".
 	//
 	// This is the "<service>" portion of the "service instance name", as
-	// described in https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+	// described in https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 	ServiceType string
 
 	// Domain is the domain under which the instance is advertised.
@@ -34,7 +34,7 @@ type ServiceInstance struct {
 	// Zerconf), but may be any valid domain name.
 	//
 	// This is the "<domain>" portion of the "service instance name", as
-	// described in https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+	// described in https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 	Domain string
 
 	// TargetHost is the fully-qualified hostname of the machine that hosts the
@@ -52,7 +52,7 @@ type ServiceInstance struct {
 	// It controls which servers are contacted first. Lower values have a higher
 	// priority.
 	//
-	// See https://datatracker.ietf.org/doc/html/rfc2782.
+	// See https://www.rfc-editor.org/rfc/rfc2782.
 	Priority uint16
 
 	// Weight is the weight of this instance within the pool of instances that
@@ -62,21 +62,21 @@ type ServiceInstance struct {
 	// instances with the same priority. Higher values are more likely to be
 	// chosen.
 	//
-	// See https://datatracker.ietf.org/doc/html/rfc2782.
+	// See https://www.rfc-editor.org/rfc/rfc2782.
 	Weight uint16
 
 	// Attributes contains a set of attributes that provide additional
 	// information about the service instance.
 	//
 	// Attributes are encoded in the instance's TXT record, as per
-	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.3.
+	// https://www.rfc-editor.org/rfc/rfc6763#section-6.3.
 	//
 	// Each element in the slice corresponds to the attributes encoded in a
 	// single TXT record.
 	//
 	// Each instance MUST have at least one TXT record and MAY have multiple TXT
 	// records, although this is rarely used in practice, see
-	// https://datatracker.ietf.org/doc/html/rfc6763#section-6.8.
+	// https://www.rfc-editor.org/rfc/rfc6763#section-6.8.
 	//
 	// An empty slice is a valid representation of an instance with a single
 	// empty TXT record.
@@ -89,7 +89,7 @@ type ServiceInstance struct {
 // ServiceInstanceName returns the fully-qualfied DNS domain name that is
 // queried to lookup records about a single service instance.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 func ServiceInstanceName(instance, serviceType, domain string) string {
 	return EscapeInstance(instance) + "." + InstanceEnumerationDomain(serviceType, domain)
 }
@@ -101,9 +101,9 @@ const needsEscape = `. '@;()"\`
 // EscapeInstance escapes a service instance name for use within DNS
 // records.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.3.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.3.
 func EscapeInstance(instance string) string {
-	// https://datatracker.ietf.org/doc/html/rfc6763#section-4.3
+	// https://www.rfc-editor.org/rfc/rfc6763#section-4.3
 	//
 	// This document RECOMMENDS that if concatenating the three portions of
 	// a Service Instance Name, any dots in the <Instance> portion be

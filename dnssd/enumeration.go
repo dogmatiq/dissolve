@@ -57,7 +57,7 @@ type Enumerator interface {
 // Service type enumeration is used to find all of the available services on a
 // single domain.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-9
+// See https://www.rfc-editor.org/rfc/rfc6763#section-9
 func TypeEnumerationDomain(domain string) string {
 	return "_services._dns-sd._udp." + domain
 }

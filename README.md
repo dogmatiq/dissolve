@@ -2,9 +2,7 @@
 
 # Dissolve
 
-Dissolve is a [DNS-SD](https://datatracker.ietf.org/doc/html/rfc6763),
-[Multicast DNS](https://datatracker.ietf.org/doc/html/rfc6762) and
-Zeroconf/Bonjour toolkit for Go.
+Dissolve is a [DNS-SD], [Multicast DNS] and Zeroconf/Bonjour toolkit for Go.
 
 [![Documentation](https://img.shields.io/badge/go.dev-documentation-007d9c?&style=for-the-badge)](https://pkg.go.dev/github.com/dogmatiq/dissolve)
 [![Latest Version](https://img.shields.io/github/tag/dogmatiq/dissolve.svg?&style=for-the-badge&label=semver)](https://github.com/dogmatiq/dissolve/releases)
@@ -34,5 +32,7 @@ Zeroconf/Bonjour toolkit for Go.
 
 <!-- references -->
 
-[rfc 6762]: https://datatracker.ietf.org/doc/html/rfc6762
-[rfc 6763]: https://datatracker.ietf.org/doc/html/rfc6763
+[multicast dns]: https://www.rfc-editor.org/rfc/rfc6762
+[rfc 6762]: https://www.rfc-editor.org/rfc/rfc6762
+[dns-sd]: https://www.rfc-editor.org/rfc/rfc6763
+[rfc 6763]: https://www.rfc-editor.org/rfc/rfc6763

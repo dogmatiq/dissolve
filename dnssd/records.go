@@ -41,7 +41,7 @@ func NewRecords(i ServiceInstance, options ...AdvertiseOption) []dns.RR {
 
 // NewPTRRecord returns the PTR record for a service instance.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-4.1
+// See https://www.rfc-editor.org/rfc/rfc6763#section-4.1
 func NewPTRRecord(i ServiceInstance) *dns.PTR {
 	return &dns.PTR{
 		Hdr: dns.RR_Header{
@@ -56,7 +56,7 @@ func NewPTRRecord(i ServiceInstance) *dns.PTR {
 
 // NewSRVRecord returns the SRV record for a service instance.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-5.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-5.
 func NewSRVRecord(i ServiceInstance) *dns.SRV {
 	return &dns.SRV{
 		Hdr: dns.RR_Header{
@@ -79,8 +79,8 @@ func NewSRVRecord(i ServiceInstance) *dns.SRV {
 //
 // If there are no attributes, it returns a single empty TXT record.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-6.
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-6.8.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-6.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-6.8.
 func NewTXTRecords(i ServiceInstance) []*dns.TXT {
 	header := dns.RR_Header{
 		Name:   ServiceInstanceName(i.Instance, i.ServiceType, i.Domain) + ".",
@@ -122,7 +122,7 @@ func NewTXTRecords(i ServiceInstance) []*dns.TXT {
 // NewServiceSubTypePTRRecord returns a PTR record used to advertise a service
 // was providing a specific service sub-type.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-7.1.
+// See https://www.rfc-editor.org/rfc/rfc6763#section-7.1.
 func NewServiceSubTypePTRRecord(i ServiceInstance, subType string) *dns.PTR {
 	return &dns.PTR{
 		Hdr: dns.RR_Header{
@@ -183,7 +183,7 @@ func NewAAAARecord(i ServiceInstance, ip net.IP) *dns.AAAA {
 //
 // These records are sent in response to a service type enumeration request.
 //
-// See https://datatracker.ietf.org/doc/html/rfc6763#section-9
+// See https://www.rfc-editor.org/rfc/rfc6763#section-9
 func NewServiceTypePTRRecord(serviceType, domain string, ttl time.Duration) *dns.PTR {
 	return &dns.PTR{
 		Hdr: dns.RR_Header{
