@@ -184,7 +184,11 @@ func (s *UnicastServer) removeRecord(rr dns.RR) {
 	}
 }
 
-// Run runs the server until ctx is canceled or an error occurs.
+// Run accepts DNS queries on the given network/address until ctx is canceled or
+// an error occurs.
+//
+// It may be called concurrently to allow listening on multiple networks (TCP &
+// UDP) or multiple ports.
 func (s *UnicastServer) Run(ctx context.Context, network, address string) error {
 	timeout := s.Timeout
 	if timeout <= 0 {
