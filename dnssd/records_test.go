@@ -21,10 +21,11 @@ var _ = Context("DNS records", func() {
 			TargetPort:  12345,
 			Priority:    10,
 			Weight:      20,
-			Attributes:  []Attributes{{}},
+			Attributes: []Attributes{
+				NewAttributes().
+					WithPair("<key>", []byte("<value>")),
+			},
 		}
-
-		instance.Attributes[0].Set("<key>", []byte("<value>"))
 	})
 
 	Describe("func NewRecords()", func() {
@@ -152,9 +153,11 @@ var _ = Context("DNS records", func() {
 		})
 
 		It("returns the expected TXT records when there are multiple attribute collections", func() {
-			var attrs Attributes
-			attrs.Set("<key-2>", []byte("<value-2>"))
-			instance.Attributes = append(instance.Attributes, attrs)
+			instance.Attributes = append(
+				instance.Attributes,
+				NewAttributes().
+					WithPair("<key-2>", []byte("<value-2>")),
+			)
 
 			rec := NewTXTRecords(instance)
 

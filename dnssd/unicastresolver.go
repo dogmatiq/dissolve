@@ -224,8 +224,11 @@ func unpackSRV(i *ServiceInstance, rr *dns.SRV) {
 // unpackSRV unpacks information from a TXT record into i.
 func unpackTXT(i *ServiceInstance, rr *dns.TXT) error {
 	var attrs Attributes
+
 	for _, pair := range rr.Txt {
-		if _, err := attrs.FromTXT(pair); err != nil {
+		var err error
+		attrs, _, err = attrs.WithTXT(pair)
+		if err != nil {
 			return fmt.Errorf("unable to parse TXT record: %w", err)
 		}
 	}

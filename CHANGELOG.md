@@ -10,6 +10,15 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Changed
+
+- **[BC]** `dnssd.Attributes` now presents an immutable interface
+- Renamed `dnssd.Attributes.Set()` to `WithPair()`
+- Renamed `dnssd.Attributes.SetFlag()` to `WithFlag()`
+- Renamed `dnssd.Attributes.Delete()` to `Without()`
+
 ## [0.1.3] - 2023-03-17
 
 ### Added

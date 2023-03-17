@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
@@ -37,24 +38,26 @@ type Attributes struct {
 }
 
 // NewAttributes returns a new empty attribute set.
-func NewAttributes() *Attributes {
-	return &Attributes{}
+func NewAttributes() Attributes {
+	return Attributes{}
 }
 
 // Get returns the value that is associated with the key k.
 //
 // ok is true there is a key/value pair with this key.
-func (a *Attributes) Get(k string) (v []byte, ok bool) {
+func (a Attributes) Get(k string) (v []byte, ok bool) {
 	v = a.m[mustNormalizeAttributeKey(k)]
 	return v, v != nil
 }
 
-// Set adds a key/value pair to the attributes.
+// WithPair returns a clone of the attributes with an additional key/value pair.
 //
 // It replaces any existing key/value pair or flag with this key.
-func (a *Attributes) Set(k string, v []byte) *Attributes {
+func (a Attributes) WithPair(k string, v []byte) Attributes {
 	if a.m == nil {
 		a.m = map[string][]byte{}
+	} else {
+		a.m = maps.Clone(a.m)
 	}
 
 	// If v is nil, replace it with an empty slice instead, otherwise it is
@@ -64,12 +67,11 @@ func (a *Attributes) Set(k string, v []byte) *Attributes {
 	}
 
 	a.m[mustNormalizeAttributeKey(k)] = v
-
 	return a
 }
 
 // Pairs returns the key/value pair (i.e. non-flag) attributes.
-func (a *Attributes) Pairs() map[string][]byte {
+func (a Attributes) Pairs() map[string][]byte {
 	attrs := map[string][]byte{}
 
 	for k, v := range a.m {
@@ -81,14 +83,16 @@ func (a *Attributes) Pairs() map[string][]byte {
 	return attrs
 }
 
-// SetFlag sets a flag.
+// WithFlag returns a lcone of the attributes with an additional flag.
 //
 // It replaces any existing key/value pair with this key.
 //
-// Use Delete() to clear a flag.
-func (a *Attributes) SetFlag(k string) *Attributes {
+// Use Without() to clear a flag.
+func (a Attributes) WithFlag(k string) Attributes {
 	if a.m == nil {
 		a.m = map[string][]byte{}
+	} else {
+		a.m = maps.Clone(a.m)
 	}
 
 	a.m[mustNormalizeAttributeKey(k)] = nil
@@ -97,7 +101,7 @@ func (a *Attributes) SetFlag(k string) *Attributes {
 
 // HasFlags returns true if all of the given flags are present in the
 // attributes.
-func (a *Attributes) HasFlags(keys ...string) bool {
+func (a Attributes) HasFlags(keys ...string) bool {
 	for _, k := range keys {
 		v, ok := a.m[mustNormalizeAttributeKey(k)]
 		if !ok || v != nil {
@@ -109,7 +113,7 @@ func (a *Attributes) HasFlags(keys ...string) bool {
 }
 
 // Flags returns the flag (i.e. non-pair) attributes that are set.
-func (a *Attributes) Flags() map[string]struct{} {
+func (a Attributes) Flags() map[string]struct{} {
 	flags := map[string]struct{}{}
 
 	for k, v := range a.m {
@@ -121,28 +125,30 @@ func (a *Attributes) Flags() map[string]struct{} {
 	return flags
 }
 
-// Delete removes all of the attributes with the given keys, regardless of
+// Without returns a clone of the attributes wouth the given keys, regardless of
 // whether they are key/value pairs or flags.
-func (a *Attributes) Delete(keys ...string) *Attributes {
+func (a Attributes) Without(keys ...string) Attributes {
+	a.m = maps.Clone(a.m)
 	for _, k := range keys {
 		delete(a.m, mustNormalizeAttributeKey(k))
 	}
+
 	return a
 }
 
 // IsEmpty returns true if there are no attributes present.
-func (a *Attributes) IsEmpty() bool {
+func (a Attributes) IsEmpty() bool {
 	return len(a.m) == 0
 }
 
-// FromTXT parses a single attribute from a values within in a DNS-SD service
-// instance's TXT record.
+// WithTXT returns a clone of the attributes containing an attribute parsed from
+// a single value within in a DNS-SD service instance's TXT record.
 //
 // As per RFC 6763, TXT record values that begin with an '=' are ignored, in
 // which case ok is false. Empty values are also ignored.
-func (a *Attributes) FromTXT(pair string) (ok bool, err error) {
+func (a Attributes) WithTXT(pair string) (_ Attributes, ok bool, err error) {
 	if pair == "" {
-		return false, nil
+		return a, false, nil
 	}
 
 	var (
@@ -154,7 +160,7 @@ func (a *Attributes) FromTXT(pair string) (ok bool, err error) {
 	case 0:
 		// DNS-SD TXT record strings beginning with an '=' character
 		// (i.e., the key is missing) MUST be silently ignored.
-		return false, nil
+		return a, false, nil
 	case -1:
 		// No equals sign, attribute is a flag.
 		k = pair
@@ -165,16 +171,18 @@ func (a *Attributes) FromTXT(pair string) (ok bool, err error) {
 
 	k, err = normalizeAttributeKey(k)
 	if err != nil {
-		return false, err
+		return Attributes{}, false, err
 	}
 
 	if a.m == nil {
 		a.m = map[string][]byte{}
+	} else {
+		a.m = maps.Clone(a.m)
 	}
 
 	a.m[k] = v
 
-	return true, nil
+	return a, true, nil
 }
 
 // ToTXT returns the string representation of each key/value pair, as they
@@ -182,7 +190,7 @@ func (a *Attributes) FromTXT(pair string) (ok bool, err error) {
 //
 // The result is deterministic (keys are sorted) to avoid unnecessary DNS churn
 // when the attributes are used to construct DNS records.
-func (a *Attributes) ToTXT() []string {
+func (a Attributes) ToTXT() []string {
 	type pair struct {
 		key   string
 		value []byte
