@@ -10,6 +10,16 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [0.1.3] - 2023-03-17
+
+### Added
+
+- Added `dnssd.NewAttributes()`
+
+### Changed
+
+- `dnssd.Attributes.Set()`, `SetFlag()` and `Delete()` now return the attribute set, allowing for a "fluent" interface
+
 ## [0.1.2] - 2023-01-11
 
 ### Changed
@@ -31,6 +41,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 [unreleased]: https://github.com/dogmatiq/dissolve
 [0.1.0]: https://github.com/dogmatiq/dissolve/releases/tag/v0.1.0
 [0.1.1]: https://github.com/dogmatiq/dissolve/releases/tag/v0.1.1
+[0.1.2]: https://github.com/dogmatiq/dissolve/releases/tag/v0.1.2
 
 <!-- version template
 ## [0.0.1] - YYYY-MM-DD

@@ -36,6 +36,11 @@ type Attributes struct {
 	m map[string][]byte
 }
 
+// NewAttributes returns a new empty attribute set.
+func NewAttributes() *Attributes {
+	return &Attributes{}
+}
+
 // Get returns the value that is associated with the key k.
 //
 // ok is true there is a key/value pair with this key.
@@ -47,7 +52,7 @@ func (a *Attributes) Get(k string) (v []byte, ok bool) {
 // Set adds a key/value pair to the attributes.
 //
 // It replaces any existing key/value pair or flag with this key.
-func (a *Attributes) Set(k string, v []byte) {
+func (a *Attributes) Set(k string, v []byte) *Attributes {
 	if a.m == nil {
 		a.m = map[string][]byte{}
 	}
@@ -59,6 +64,8 @@ func (a *Attributes) Set(k string, v []byte) {
 	}
 
 	a.m[mustNormalizeAttributeKey(k)] = v
+
+	return a
 }
 
 // Pairs returns the key/value pair (i.e. non-flag) attributes.
@@ -79,12 +86,13 @@ func (a *Attributes) Pairs() map[string][]byte {
 // It replaces any existing key/value pair with this key.
 //
 // Use Delete() to clear a flag.
-func (a *Attributes) SetFlag(k string) {
+func (a *Attributes) SetFlag(k string) *Attributes {
 	if a.m == nil {
 		a.m = map[string][]byte{}
 	}
 
 	a.m[mustNormalizeAttributeKey(k)] = nil
+	return a
 }
 
 // HasFlags returns true if all of the given flags are present in the
@@ -115,10 +123,11 @@ func (a *Attributes) Flags() map[string]struct{} {
 
 // Delete removes all of the attributes with the given keys, regardless of
 // whether they are key/value pairs or flags.
-func (a *Attributes) Delete(keys ...string) {
+func (a *Attributes) Delete(keys ...string) *Attributes {
 	for _, k := range keys {
 		delete(a.m, mustNormalizeAttributeKey(k))
 	}
+	return a
 }
 
 // IsEmpty returns true if there are no attributes present.

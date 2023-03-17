@@ -13,6 +13,20 @@ var _ = Describe("type Attributes", func() {
 		attrs = &Attributes{}
 	})
 
+	Describe("func NewAttributes()", func() {
+		It("allows for a 'fluent' interface", func() {
+			attrs := NewAttributes().
+				Set("<key>", []byte("<value>")).
+				SetFlag("<flag>")
+
+			v, ok := attrs.Get("<key>")
+			Expect(v).To(Equal([]byte("<value>")))
+			Expect(ok).To(BeTrue())
+
+			Expect(attrs.HasFlags("<flag>")).To(BeTrue())
+		})
+	})
+
 	Context("binary attributes", func() {
 		Describe("func Set()", func() {
 			It("sets the attribute", func() {
