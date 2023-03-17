@@ -50,7 +50,7 @@ func NewPTRRecord(i ServiceInstance) *dns.PTR {
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
 		},
-		Ptr: ServiceInstanceName(i.Instance, i.ServiceType, i.Domain) + ".",
+		Ptr: ServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
 	}
 }
 
@@ -60,7 +60,7 @@ func NewPTRRecord(i ServiceInstance) *dns.PTR {
 func NewSRVRecord(i ServiceInstance) *dns.SRV {
 	return &dns.SRV{
 		Hdr: dns.RR_Header{
-			Name:   ServiceInstanceName(i.Instance, i.ServiceType, i.Domain) + ".",
+			Name:   ServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
 			Rrtype: dns.TypeSRV,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
@@ -83,7 +83,7 @@ func NewSRVRecord(i ServiceInstance) *dns.SRV {
 // See https://www.rfc-editor.org/rfc/rfc6763#section-6.8.
 func NewTXTRecords(i ServiceInstance) []*dns.TXT {
 	header := dns.RR_Header{
-		Name:   ServiceInstanceName(i.Instance, i.ServiceType, i.Domain) + ".",
+		Name:   ServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
 		Rrtype: dns.TypeTXT,
 		Class:  dns.ClassINET,
 		Ttl:    ttlInSeconds(i.TTL),
@@ -131,7 +131,7 @@ func NewServiceSubTypePTRRecord(i ServiceInstance, subType string) *dns.PTR {
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
 		},
-		Ptr: ServiceInstanceName(i.Instance, i.ServiceType, i.Domain) + ".",
+		Ptr: ServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
 	}
 }
 

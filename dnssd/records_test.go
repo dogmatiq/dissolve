@@ -14,7 +14,7 @@ var _ = Context("DNS records", func() {
 
 	BeforeEach(func() {
 		instance = ServiceInstance{
-			Instance:    "Boardroom Printer.",
+			Name:        "Boardroom Printer.",
 			ServiceType: "_http._tcp",
 			Domain:      "example.org",
 			TargetHost:  "host.example.com",

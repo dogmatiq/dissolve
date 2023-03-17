@@ -25,7 +25,7 @@ var _ = Context("UnicastResolver", func() {
 		ctx, cancel = context.WithTimeout(context.Background(), 3*time.Second)
 
 		instanceA = ServiceInstance{
-			Instance:    "Instance A",
+			Name:        "Instance A",
 			ServiceType: "_http._tcp",
 			Domain:      "example.org",
 			TargetHost:  "a.example.com",
@@ -40,7 +40,7 @@ var _ = Context("UnicastResolver", func() {
 		}
 
 		instanceB = ServiceInstance{
-			Instance:    "Instance B",
+			Name:        "Instance B",
 			ServiceType: "_http._tcp",
 			Domain:      "example.org",
 			TargetHost:  "b.example.com",
@@ -56,7 +56,7 @@ var _ = Context("UnicastResolver", func() {
 		}
 
 		instanceC = ServiceInstance{
-			Instance:    "Instance C",
+			Name:        "Instance C",
 			ServiceType: "_other._udp",
 			Domain:      "example.org",
 			TargetHost:  "c.example.com",

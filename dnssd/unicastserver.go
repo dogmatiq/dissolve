@@ -62,7 +62,7 @@ type instanceRecords struct {
 // Typically, these records would be served by a separate domain name server
 // that is authoratative for the internet domain name used in i.TargetHost.
 func (s *UnicastServer) Advertise(i ServiceInstance, options ...AdvertiseOption) {
-	name := ServiceInstanceName(i.Instance, i.ServiceType, i.Domain)
+	name := ServiceInstanceName(i.Name, i.ServiceType, i.Domain)
 	records := NewRecords(i, options...)
 
 	s.m.Lock()
@@ -100,7 +100,7 @@ func (s *UnicastServer) Advertise(i ServiceInstance, options ...AdvertiseOption)
 
 // Remove stops advertising a DNS-SD service instance.
 func (s *UnicastServer) Remove(i ServiceInstance) {
-	name := ServiceInstanceName(i.Instance, i.ServiceType, i.Domain)
+	name := ServiceInstanceName(i.Name, i.ServiceType, i.Domain)
 
 	s.m.Lock()
 	defer s.m.Unlock()

@@ -14,10 +14,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ### Changed
 
+- **[BC]** Renamed `dnssd.ServiceInstance.Instance` to `Name`
 - **[BC]** `dnssd.Attributes` now presents an immutable interface
-- Renamed `dnssd.Attributes.Set()` to `WithPair()`
-- Renamed `dnssd.Attributes.SetFlag()` to `WithFlag()`
-- Renamed `dnssd.Attributes.Delete()` to `Without()`
+- **[BC]** Renamed `dnssd.Attributes.Set()` to `WithPair()`
+- **[BC]** Renamed `dnssd.Attributes.SetFlag()` to `WithFlag()`
+- **[BC]** Renamed `dnssd.Attributes.Delete()` to `Without()`
 
 ## [0.1.3] - 2023-03-17
 

@@ -9,13 +9,13 @@ import (
 // ServiceInstance encapsulates information about a single DNS-SD service
 // instance.
 type ServiceInstance struct {
-	// Instance is the service instance's unqualified name.
+	// Name is the service instance's unqualified name.
 	//
 	// For example, "Boardroom Printer".
 	//
 	// This is the "<instance>" portion of the "service instance name", as
 	// described in https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
-	Instance string
+	Name string
 
 	// ServiceType is the type of service that the instance provides.
 	//

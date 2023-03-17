@@ -182,7 +182,7 @@ func (r *UnicastResolver) LookupInstance(
 	close(responses)
 
 	i := ServiceInstance{
-		Instance:    instance,
+		Name:        instance,
 		ServiceType: serviceType,
 		Domain:      domain,
 		TTL:         math.MaxInt64,
