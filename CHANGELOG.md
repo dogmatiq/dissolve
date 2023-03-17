@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added `dnssd.ServiceInstance.Equal()` method
+- Added `dnssd.Attributes.Equal()` method
+- Added `dnssd.AttributeCollectionsEqual()` function
+
 ### Changed
 
 - **[BC]** Renamed `dnssd.ServiceInstance.Instance` to `Name`

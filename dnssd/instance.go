@@ -86,6 +86,19 @@ type ServiceInstance struct {
 	TTL time.Duration
 }
 
+// Equal returns true if i and inst are equal.
+func (i ServiceInstance) Equal(inst ServiceInstance) bool {
+	return i.Name == inst.Name &&
+		i.ServiceType == inst.ServiceType &&
+		i.Domain == inst.Domain &&
+		i.TargetHost == inst.TargetHost &&
+		i.TargetPort == inst.TargetPort &&
+		i.Priority == inst.Priority &&
+		i.Weight == inst.Weight &&
+		AttributeCollectionsEqual(i.Attributes, inst.Attributes) &&
+		i.TTL == inst.TTL
+}
+
 // ServiceInstanceName returns the fully-qualfied DNS domain name that is
 // queried to lookup records about a single service instance.
 //

@@ -1,6 +1,7 @@
 package dnssd
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"strings"
@@ -239,6 +240,20 @@ func (a Attributes) ToTXT() []string {
 	return result
 }
 
+// Equal returns true if the attributes are equal.
+func (a Attributes) Equal(attr Attributes) bool {
+	return maps.EqualFunc(
+		a.m,
+		attr.m,
+		func(v1, v2 []byte) bool {
+			isFlag1 := v1 == nil
+			isFlag2 := v2 == nil
+
+			return isFlag1 == isFlag2 && bytes.Equal(v1, v2)
+		},
+	)
+}
+
 // mustNormalizeAttributeKey normalizes the DNS-SD TXT key, k, or panics if it
 // can not be normalized.
 //
@@ -288,4 +303,32 @@ func normalizeAttributeKey(k string) (string, error) {
 	}
 
 	return w.String(), nil
+}
+
+// AttributeCollectionsEqual returns true if lhs and rhs contain the same sets
+// of attributes, in any order.
+func AttributeCollectionsEqual(lhs, rhs []Attributes) bool {
+	if len(lhs) != len(rhs) {
+		return false
+	}
+
+	visited := make([]bool, len(rhs))
+
+left:
+	for _, l := range lhs {
+		for i, r := range rhs {
+			if visited[i] {
+				continue
+			}
+
+			if l.Equal(r) {
+				visited[i] = true
+				continue left
+			}
+		}
+
+		return false
+	}
+
+	return true
 }
