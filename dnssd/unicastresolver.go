@@ -35,7 +35,7 @@ func (r *UnicastResolver) EnumerateServiceTypes(
 ) ([]string, error) {
 	res, ok, err := r.query(
 		ctx,
-		TypeEnumerationDomain(domain),
+		AbsoluteTypeEnumerationDomain(domain),
 		dns.TypePTR,
 	)
 	if !ok || err != nil {
@@ -74,7 +74,7 @@ func (r *UnicastResolver) EnumerateInstances(
 ) ([]string, error) {
 	res, ok, err := r.query(
 		ctx,
-		InstanceEnumerationDomain(serviceType, domain),
+		AbsoluteInstanceEnumerationDomain(serviceType, domain),
 		dns.TypePTR,
 	)
 	if !ok || err != nil {
@@ -114,7 +114,7 @@ func (r *UnicastResolver) EnumerateInstancesBySubType(
 ) ([]string, error) {
 	res, ok, err := r.query(
 		ctx,
-		SelectiveInstanceEnumerationDomain(subType, serviceType, domain),
+		AbsoluteSelectiveInstanceEnumerationDomain(subType, serviceType, domain),
 		dns.TypePTR,
 	)
 	if !ok || err != nil {
@@ -255,7 +255,7 @@ func (r *UnicastResolver) query(
 	}
 
 	req := &dns.Msg{}
-	req.SetQuestion(name+".", questionType)
+	req.SetQuestion(name, questionType)
 
 	for _, s := range r.Config.Servers {
 		if ctx.Err() != nil {

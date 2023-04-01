@@ -7,6 +7,30 @@ import (
 )
 
 var _ = Describe("type ServiceInstanceName", func() {
+	Describe("func Absolute()", func() {
+		It("returns the absolute name of the service instance", func() {
+			n := ServiceInstanceName{
+				Name:        "Boardroom Printer",
+				ServiceType: "_http._tcp",
+				Domain:      "example.org",
+			}
+
+			Expect(n.Absolute()).To(Equal(`Boardroom\ Printer._http._tcp.example.org.`))
+		})
+	})
+
+	Describe("func Relative()", func() {
+		It("returns the relative name of the service instance", func() {
+			n := ServiceInstanceName{
+				Name:        "Boardroom Printer",
+				ServiceType: "_http._tcp",
+				Domain:      "example.org",
+			}
+
+			Expect(n.Relative()).To(Equal(`Boardroom\ Printer._http._tcp`))
+		})
+	})
+
 	Describe("func Equal()", func() {
 		DescribeTable(
 			"it returns true if the names are equal",
@@ -72,14 +96,14 @@ var _ = Describe("type ServiceInstanceName", func() {
 var _ = Describe("func AbsoluteServiceInstanceName()", func() {
 	It("returns the fully-qualified name, with appropriate escaping", func() {
 		d := AbsoluteServiceInstanceName("Boardroom Printer.", "_http._tcp", "example.org")
-		Expect(d).To(Equal(`Boardroom\ Printer\.._http._tcp.example.org`))
+		Expect(d).To(Equal(`Boardroom\ Printer\.._http._tcp.example.org.`))
 	})
 })
 
 var _ = Describe("func RelativeServiceInstanceName()", func() {
-	It("returns the fully-qualified name, with appropriate escaping", func() {
-		d := AbsoluteServiceInstanceName("Boardroom Printer.", "_http._tcp", "example.org")
-		Expect(d).To(Equal(`Boardroom\ Printer\.._http._tcp.example.org`))
+	It("returns the relative name, with appropriate escaping", func() {
+		d := RelativeServiceInstanceName("Boardroom Printer.", "_http._tcp")
+		Expect(d).To(Equal(`Boardroom\ Printer\.._http._tcp`))
 	})
 })
 

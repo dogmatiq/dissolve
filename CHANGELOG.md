@@ -15,12 +15,19 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Added
 
 - Added `dnssd.RelativeServiceInstanceName()`
+- Added `dnssd.RelativeTypeEnumerationDomain()` to
+- Added `dnssd.RelativeInstanceEnumerationDomain()`
+- Added `dnssd.RelativeSelectiveInstanceEnumerationDomain()`
 - Added `dnssd.ServiceInstanceName` struct (this name was previously used for a function)
 
 ### Changed
 
+- **[BC]** `Name`, `ServiceType` and `Domain` fields in `dnssd.ServiceInstance` are now provided by embedding the `ServiceInstanceName` struct
 - **[BC]** Renamed `dnssd.ServiceInstanceName()` to `AbsoluteServiceInstanceName()`
-- **[BC]** `Name`, `ServiceType` and `Domain` fields in `dnssd.ServiceInstance` are now provided by embedding `ServiceInstanceName`
+- **[BC]** Renamed `dnssd.TypeEnumerationDomain()` to `AbsoluteTypeEnumerationDomain()`
+- **[BC]** Renamed `dnssd.InstanceEnumerationDomain()` to `AbsoluteInstanceEnumerationDomain()`
+- **[BC]** Renamed `dnssd.SelectiveInstanceEnumerationDomain()` to `AbsoluteSelectiveInstanceEnumerationDomain()`
+- **[BC]** **All `AbsoluteXXX()` functions now include the trailing dot**
 
 ## [0.2.0] - 2023-03-17
 

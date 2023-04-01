@@ -4,6 +4,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/dogmatiq/dissolve/internal/domainname"
 	"github.com/miekg/dns"
 )
 
@@ -45,12 +46,12 @@ func NewRecords(i ServiceInstance, options ...AdvertiseOption) []dns.RR {
 func NewPTRRecord(i ServiceInstance) *dns.PTR {
 	return &dns.PTR{
 		Hdr: dns.RR_Header{
-			Name:   InstanceEnumerationDomain(i.ServiceType, i.Domain) + ".",
+			Name:   AbsoluteInstanceEnumerationDomain(i.ServiceType, i.Domain),
 			Rrtype: dns.TypePTR,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
 		},
-		Ptr: AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
+		Ptr: AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain),
 	}
 }
 
@@ -60,14 +61,14 @@ func NewPTRRecord(i ServiceInstance) *dns.PTR {
 func NewSRVRecord(i ServiceInstance) *dns.SRV {
 	return &dns.SRV{
 		Hdr: dns.RR_Header{
-			Name:   AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
+			Name:   AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain),
 			Rrtype: dns.TypeSRV,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
 		},
 		Priority: i.Priority,
 		Weight:   i.Weight,
-		Target:   i.TargetHost + ".",
+		Target:   domainname.Absolute(i.TargetHost),
 		Port:     i.TargetPort,
 	}
 }
@@ -83,7 +84,7 @@ func NewSRVRecord(i ServiceInstance) *dns.SRV {
 // See https://www.rfc-editor.org/rfc/rfc6763#section-6.8.
 func NewTXTRecords(i ServiceInstance) []*dns.TXT {
 	header := dns.RR_Header{
-		Name:   AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
+		Name:   AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain),
 		Rrtype: dns.TypeTXT,
 		Class:  dns.ClassINET,
 		Ttl:    ttlInSeconds(i.TTL),
@@ -126,12 +127,12 @@ func NewTXTRecords(i ServiceInstance) []*dns.TXT {
 func NewServiceSubTypePTRRecord(i ServiceInstance, subType string) *dns.PTR {
 	return &dns.PTR{
 		Hdr: dns.RR_Header{
-			Name:   SelectiveInstanceEnumerationDomain(subType, i.ServiceType, i.Domain) + ".",
+			Name:   AbsoluteSelectiveInstanceEnumerationDomain(subType, i.ServiceType, i.Domain),
 			Rrtype: dns.TypePTR,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
 		},
-		Ptr: AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain) + ".",
+		Ptr: AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain),
 	}
 }
 
@@ -146,7 +147,7 @@ func NewARecord(i ServiceInstance, ip net.IP) *dns.A {
 
 	return &dns.A{
 		Hdr: dns.RR_Header{
-			Name:   i.TargetHost + ".",
+			Name:   domainname.Absolute(i.TargetHost),
 			Rrtype: dns.TypeA,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
@@ -170,7 +171,7 @@ func NewAAAARecord(i ServiceInstance, ip net.IP) *dns.AAAA {
 
 	return &dns.AAAA{
 		Hdr: dns.RR_Header{
-			Name:   i.TargetHost + ".",
+			Name:   domainname.Absolute(i.TargetHost),
 			Rrtype: dns.TypeAAAA,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(i.TTL),
@@ -187,12 +188,12 @@ func NewAAAARecord(i ServiceInstance, ip net.IP) *dns.AAAA {
 func NewServiceTypePTRRecord(serviceType, domain string, ttl time.Duration) *dns.PTR {
 	return &dns.PTR{
 		Hdr: dns.RR_Header{
-			Name:   TypeEnumerationDomain(domain) + ".",
+			Name:   AbsoluteTypeEnumerationDomain(domain),
 			Rrtype: dns.TypePTR,
 			Class:  dns.ClassINET,
 			Ttl:    ttlInSeconds(ttl),
 		},
-		Ptr: InstanceEnumerationDomain(serviceType, domain) + ".",
+		Ptr: AbsoluteInstanceEnumerationDomain(serviceType, domain),
 	}
 }
 

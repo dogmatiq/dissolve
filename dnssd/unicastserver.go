@@ -76,7 +76,7 @@ func (s *UnicastServer) Advertise(i ServiceInstance, options ...AdvertiseOption)
 		s.removeInstance(name)
 	}
 
-	enumDomain := InstanceEnumerationDomain(i.ServiceType, i.Domain)
+	enumDomain := AbsoluteInstanceEnumerationDomain(i.ServiceType, i.Domain)
 
 	sr, ok := s.services[enumDomain]
 	if ok {

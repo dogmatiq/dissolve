@@ -3,6 +3,8 @@ package dnssd
 import (
 	"errors"
 	"strings"
+
+	"github.com/dogmatiq/dissolve/internal/domainname"
 )
 
 // ServiceInstanceName encapsulates a fully-qualified DNS-SD service
@@ -66,7 +68,10 @@ func (n ServiceInstanceName) Relative() string {
 //
 // See https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 func AbsoluteServiceInstanceName(instance, serviceType, domain string) string {
-	return EscapeInstance(instance) + "." + InstanceEnumerationDomain(serviceType, domain)
+	return domainname.Absolute(
+		RelativeServiceInstanceName(instance, serviceType),
+		domain,
+	)
 }
 
 // RelativeServiceInstanceName returns the DNS domain name that is queried to
@@ -75,7 +80,10 @@ func AbsoluteServiceInstanceName(instance, serviceType, domain string) string {
 //
 // See https://www.rfc-editor.org/rfc/rfc6763#section-4.1.
 func RelativeServiceInstanceName(instance, serviceType string) string {
-	return EscapeInstance(instance) + "." + serviceType
+	return domainname.Relative(
+		EscapeInstance(instance),
+		RelativeInstanceEnumerationDomain(serviceType),
+	)
 }
 
 // needsEscape is a string containing runes that must be escaped when they

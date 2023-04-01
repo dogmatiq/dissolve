@@ -114,7 +114,7 @@ var _ = Context("UnicastServer", func() {
 		Context("service type enumeration", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				TypeEnumerationDomain("example.org")+".",
+				AbsoluteTypeEnumerationDomain("example.org"),
 				dns.TypePTR,
 			)
 
@@ -164,7 +164,7 @@ var _ = Context("UnicastServer", func() {
 		Context("service instance enumeration (aka browsing)", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				InstanceEnumerationDomain("_http._tcp", "example.org")+".",
+				AbsoluteInstanceEnumerationDomain("_http._tcp", "example.org"),
 				dns.TypePTR,
 			)
 
@@ -195,7 +195,7 @@ var _ = Context("UnicastServer", func() {
 		Context("selective instance enumeration", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				SelectiveInstanceEnumerationDomain("_printer", "_http._tcp", "example.org")+".",
+				AbsoluteSelectiveInstanceEnumerationDomain("_printer", "_http._tcp", "example.org"),
 				dns.TypePTR,
 			)
 
@@ -225,7 +225,7 @@ var _ = Context("UnicastServer", func() {
 		Context("instance 'lookup' queries", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				AbsoluteServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
+				AbsoluteServiceInstanceName("Instance A", "_http._tcp", "example.org"),
 				dns.TypeANY,
 			)
 
@@ -242,7 +242,7 @@ var _ = Context("UnicastServer", func() {
 
 			It("responds to instance lookup queries for a specific record type", func() {
 				req.SetQuestion(
-					AbsoluteServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
+					AbsoluteServiceInstanceName("Instance A", "_http._tcp", "example.org"),
 					dns.TypeSRV,
 				)
 
