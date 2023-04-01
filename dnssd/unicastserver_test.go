@@ -23,13 +23,15 @@ var _ = Context("UnicastServer", func() {
 		ctx, cancel = context.WithTimeout(context.Background(), 3*time.Second)
 
 		instanceA = ServiceInstance{
-			Name:        "Instance A",
-			ServiceType: "_http._tcp",
-			Domain:      "example.org",
-			TargetHost:  "a.example.com",
-			TargetPort:  12345,
-			Priority:    10,
-			Weight:      20,
+			ServiceInstanceName: ServiceInstanceName{
+				Name:        "Instance A",
+				ServiceType: "_http._tcp",
+				Domain:      "example.org",
+			},
+			TargetHost: "a.example.com",
+			TargetPort: 12345,
+			Priority:   10,
+			Weight:     20,
 			Attributes: []Attributes{
 				NewAttributes().
 					WithPair("<key>", []byte("<instance-a>")),
@@ -37,13 +39,15 @@ var _ = Context("UnicastServer", func() {
 		}
 
 		instanceB = ServiceInstance{
-			Name:        "Instance B",
-			ServiceType: "_http._tcp",
-			Domain:      "example.org",
-			TargetHost:  "b.example.com",
-			TargetPort:  12345,
-			Priority:    10,
-			Weight:      20,
+			ServiceInstanceName: ServiceInstanceName{
+				Name:        "Instance B",
+				ServiceType: "_http._tcp",
+				Domain:      "example.org",
+			},
+			TargetHost: "b.example.com",
+			TargetPort: 12345,
+			Priority:   10,
+			Weight:     20,
 			Attributes: []Attributes{
 				NewAttributes().
 					WithPair("<key>", []byte("<instance-b0>")),
@@ -53,13 +57,15 @@ var _ = Context("UnicastServer", func() {
 		}
 
 		instanceC = ServiceInstance{
-			Name:        "Instance C",
-			ServiceType: "_other._udp",
-			Domain:      "example.org",
-			TargetHost:  "c.example.com",
-			TargetPort:  12345,
-			Priority:    10,
-			Weight:      20,
+			ServiceInstanceName: ServiceInstanceName{
+				Name:        "Instance C",
+				ServiceType: "_other._udp",
+				Domain:      "example.org",
+			},
+			TargetHost: "c.example.com",
+			TargetPort: 12345,
+			Priority:   10,
+			Weight:     20,
 		}
 
 		server = &UnicastServer{}
@@ -219,7 +225,7 @@ var _ = Context("UnicastServer", func() {
 		Context("instance 'lookup' queries", func() {
 			req := &dns.Msg{}
 			req.SetQuestion(
-				ServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
+				AbsoluteServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
 				dns.TypeANY,
 			)
 
@@ -236,7 +242,7 @@ var _ = Context("UnicastServer", func() {
 
 			It("responds to instance lookup queries for a specific record type", func() {
 				req.SetQuestion(
-					ServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
+					AbsoluteServiceInstanceName("Instance A", "_http._tcp", "example.org")+".",
 					dns.TypeSRV,
 				)
 

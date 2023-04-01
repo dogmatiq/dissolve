@@ -10,6 +10,18 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Added
+
+- Added `dnssd.RelativeServiceInstanceName()`
+- Added `dnssd.ServiceInstanceName` struct (this name was previously used for a function)
+
+### Changed
+
+- **[BC]** Renamed `dnssd.ServiceInstanceName()` to `AbsoluteServiceInstanceName()`
+- **[BC]** `Name`, `ServiceType` and `Domain` fields in `dnssd.ServiceInstance` are now provided by embedding `ServiceInstanceName`
+
 ## [0.2.0] - 2023-03-17
 
 ### Added

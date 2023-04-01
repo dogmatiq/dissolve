@@ -25,13 +25,15 @@ var _ = Context("UnicastResolver", func() {
 		ctx, cancel = context.WithTimeout(context.Background(), 3*time.Second)
 
 		instanceA = ServiceInstance{
-			Name:        "Instance A",
-			ServiceType: "_http._tcp",
-			Domain:      "example.org",
-			TargetHost:  "a.example.com",
-			TargetPort:  12345,
-			Priority:    10,
-			Weight:      20,
+			ServiceInstanceName: ServiceInstanceName{
+				Name:        "Instance A",
+				ServiceType: "_http._tcp",
+				Domain:      "example.org",
+			},
+			TargetHost: "a.example.com",
+			TargetPort: 12345,
+			Priority:   10,
+			Weight:     20,
 			Attributes: []Attributes{
 				NewAttributes().
 					WithPair("<key>", []byte("<instance-a>")),
@@ -40,13 +42,15 @@ var _ = Context("UnicastResolver", func() {
 		}
 
 		instanceB = ServiceInstance{
-			Name:        "Instance B",
-			ServiceType: "_http._tcp",
-			Domain:      "example.org",
-			TargetHost:  "b.example.com",
-			TargetPort:  12345,
-			Priority:    10,
-			Weight:      20,
+			ServiceInstanceName: ServiceInstanceName{
+				Name:        "Instance B",
+				ServiceType: "_http._tcp",
+				Domain:      "example.org",
+			},
+			TargetHost: "b.example.com",
+			TargetPort: 12345,
+			Priority:   10,
+			Weight:     20,
 			Attributes: []Attributes{
 				NewAttributes().
 					WithPair("<key>", []byte("<instance-b0>")),
@@ -56,13 +60,15 @@ var _ = Context("UnicastResolver", func() {
 		}
 
 		instanceC = ServiceInstance{
-			Name:        "Instance C",
-			ServiceType: "_other._udp",
-			Domain:      "example.org",
-			TargetHost:  "c.example.com",
-			TargetPort:  12345,
-			Priority:    10,
-			Weight:      20,
+			ServiceInstanceName: ServiceInstanceName{
+				Name:        "Instance C",
+				ServiceType: "_other._udp",
+				Domain:      "example.org",
+			},
+			TargetHost: "c.example.com",
+			TargetPort: 12345,
+			Priority:   10,
+			Weight:     20,
 		}
 
 		server = &UnicastServer{}

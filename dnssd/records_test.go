@@ -14,13 +14,15 @@ var _ = Context("DNS records", func() {
 
 	BeforeEach(func() {
 		instance = ServiceInstance{
-			Name:        "Boardroom Printer.",
-			ServiceType: "_http._tcp",
-			Domain:      "example.org",
-			TargetHost:  "host.example.com",
-			TargetPort:  12345,
-			Priority:    10,
-			Weight:      20,
+			ServiceInstanceName: ServiceInstanceName{
+				Name:        "Boardroom Printer.",
+				ServiceType: "_http._tcp",
+				Domain:      "example.org",
+			},
+			TargetHost: "host.example.com",
+			TargetPort: 12345,
+			Priority:   10,
+			Weight:     20,
 			Attributes: []Attributes{
 				NewAttributes().
 					WithPair("<key>", []byte("<value>")),

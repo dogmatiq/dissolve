@@ -147,7 +147,7 @@ func (r *UnicastResolver) LookupInstance(
 	ctx context.Context,
 	instance, serviceType, domain string,
 ) (_ ServiceInstance, ok bool, _ error) {
-	queryName := ServiceInstanceName(instance, serviceType, domain)
+	queryName := AbsoluteServiceInstanceName(instance, serviceType, domain)
 	responses := make(chan *dns.Msg, 2)
 
 	// Note that we make separate queries for SRV and TXT records. We do this
@@ -182,10 +182,12 @@ func (r *UnicastResolver) LookupInstance(
 	close(responses)
 
 	i := ServiceInstance{
-		Name:        instance,
-		ServiceType: serviceType,
-		Domain:      domain,
-		TTL:         math.MaxInt64,
+		ServiceInstanceName: ServiceInstanceName{
+			Name:        instance,
+			ServiceType: serviceType,
+			Domain:      domain,
+		},
+		TTL: math.MaxInt64,
 	}
 
 	var hasSRV, hasTXT bool
