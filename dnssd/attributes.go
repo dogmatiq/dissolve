@@ -4,9 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
-
-	"golang.org/x/exp/slices"
 )
 
 // Attributes represents the set of attributes conveyed in a DNS-SD service
@@ -189,9 +188,12 @@ func (a Attributes) ToTXT() []string {
 	// entry of the TXT record.
 	const versionKey = "txtvers"
 
-	slices.SortFunc(
+	sort.Slice(
 		pairs,
-		func(a, b pair) bool {
+		func(i, j int) bool {
+			a := pairs[i]
+			b := pairs[j]
+
 			if a.key == versionKey {
 				return true
 			}
