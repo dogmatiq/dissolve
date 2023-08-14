@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
@@ -55,20 +54,14 @@ func (a Attributes) Get(k string) (v []byte, ok bool) {
 //
 // It replaces any existing key/value pair or flag with this key.
 func (a Attributes) WithPair(k string, v []byte) Attributes {
-	if a.m == nil {
-		a.m = map[string][]byte{}
-	} else {
-		a.m = maps.Clone(a.m)
-	}
-
-	// If v is nil, replace it with an empty slice instead, otherwise it is
-	// considered a flag.
-	if v == nil {
-		v = []byte{}
-	}
-
-	a.m[mustNormalizeAttributeKey(k)] = v
-	return a
+	return a.mutate(func(m map[string][]byte) {
+		// If v is nil, replace it with an empty slice instead, otherwise it is
+		// considered a flag.
+		if v == nil {
+			v = []byte{}
+		}
+		m[mustNormalizeAttributeKey(k)] = v
+	})
 }
 
 // Pairs returns the key/value pair (i.e. non-flag) attributes.
@@ -90,14 +83,9 @@ func (a Attributes) Pairs() map[string][]byte {
 //
 // Use Without() to clear a flag.
 func (a Attributes) WithFlag(k string) Attributes {
-	if a.m == nil {
-		a.m = map[string][]byte{}
-	} else {
-		a.m = maps.Clone(a.m)
-	}
-
-	a.m[mustNormalizeAttributeKey(k)] = nil
-	return a
+	return a.mutate(func(m map[string][]byte) {
+		m[mustNormalizeAttributeKey(k)] = nil
+	})
 }
 
 // HasFlags returns true if all of the given flags are present in the
@@ -129,12 +117,11 @@ func (a Attributes) Flags() map[string]struct{} {
 // Without returns a clone of the attributes wouth the given keys, regardless of
 // whether they are key/value pairs or flags.
 func (a Attributes) Without(keys ...string) Attributes {
-	a.m = maps.Clone(a.m)
-	for _, k := range keys {
-		delete(a.m, mustNormalizeAttributeKey(k))
-	}
-
-	return a
+	return a.mutate(func(m map[string][]byte) {
+		for _, k := range keys {
+			delete(m, mustNormalizeAttributeKey(k))
+		}
+	})
 }
 
 // IsEmpty returns true if there are no attributes present.
@@ -175,15 +162,9 @@ func (a Attributes) WithTXT(pair string) (_ Attributes, ok bool, err error) {
 		return Attributes{}, false, err
 	}
 
-	if a.m == nil {
-		a.m = map[string][]byte{}
-	} else {
-		a.m = maps.Clone(a.m)
-	}
-
-	a.m[k] = v
-
-	return a, true, nil
+	return a.mutate(func(m map[string][]byte) {
+		m[k] = v
+	}), true, nil
 }
 
 // ToTXT returns the string representation of each key/value pair, as they
@@ -242,16 +223,43 @@ func (a Attributes) ToTXT() []string {
 
 // Equal returns true if the attributes are equal.
 func (a Attributes) Equal(attr Attributes) bool {
-	return maps.EqualFunc(
-		a.m,
-		attr.m,
-		func(v1, v2 []byte) bool {
-			isFlag1 := v1 == nil
-			isFlag2 := v2 == nil
+	if len(a.m) != len(attr.m) {
+		return false
+	}
 
-			return isFlag1 == isFlag2 && bytes.Equal(v1, v2)
-		},
-	)
+	for k, v1 := range a.m {
+		v2, ok := attr.m[k]
+		if !ok {
+			return false
+		}
+
+		isFlag1 := v1 == nil
+		isFlag2 := v2 == nil
+
+		if isFlag1 != isFlag2 {
+			return false
+		}
+
+		if !bytes.Equal(v1, v2) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (a Attributes) mutate(
+	fn func(map[string][]byte),
+) Attributes {
+	m := make(map[string][]byte, len(a.m))
+
+	for k, v := range a.m {
+		m[k] = v
+	}
+
+	fn(m)
+
+	return Attributes{m}
 }
 
 // mustNormalizeAttributeKey normalizes the DNS-SD TXT key, k, or panics if it
