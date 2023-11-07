@@ -113,8 +113,8 @@ func (a Attributes) Flags() map[string]struct{} {
 	return flags
 }
 
-// Without returns a clone of the attributes wouth the given keys, regardless of
-// whether they are key/value pairs or flags.
+// Without returns a clone of the attributes without the given keys, regardless
+// of whether they are key/value pairs or flags.
 func (a Attributes) Without(keys ...string) Attributes {
 	return a.mutate(func(m map[string][]byte) {
 		for _, k := range keys {
@@ -318,6 +318,73 @@ func normalizeAttributeKey(k string) (string, error) {
 // AttributeCollection is a collection of [Attributes]. Each entry in the slice
 // contains the attributes conveyed in a separate TXT record.
 type AttributeCollection []Attributes
+
+// Get returns the last value that is associated with the key k.
+//
+// ok is true there is a key/value pair with this key.
+func (c AttributeCollection) Get(k string) (v []byte, ok bool) {
+	k = mustNormalizeAttributeKey(k)
+
+	for i := len(c) - 1; i >= 0; i-- {
+		a := c[i]
+		v = a.m[k]
+		if v != nil {
+			return v, true
+		}
+	}
+
+	return nil, false
+}
+
+// Pairs returns the key/value pair (i.e. non-flag) attributes.
+func (c AttributeCollection) Pairs() map[string][]byte {
+	attrs := map[string][]byte{}
+
+	for _, a := range c {
+		for k, v := range a.m {
+			if v != nil {
+				attrs[k] = v
+			}
+		}
+	}
+
+	return attrs
+}
+
+// HasFlags returns true if all of the given flags are present in the
+// attributes.
+func (c AttributeCollection) HasFlags(keys ...string) bool {
+key:
+	for _, k := range keys {
+		k = mustNormalizeAttributeKey(k)
+
+		for _, a := range c {
+			v, ok := a.m[k]
+			if ok && v == nil {
+				continue key
+			}
+		}
+
+		return false
+	}
+
+	return true
+}
+
+// Flags returns the flag (i.e. non-pair) attributes that are set.
+func (c AttributeCollection) Flags() map[string]struct{} {
+	flags := map[string]struct{}{}
+
+	for _, a := range c {
+		for k, v := range a.m {
+			if v == nil {
+				flags[k] = struct{}{}
+			}
+		}
+	}
+
+	return flags
+}
 
 // Equal returns true if c and x contain the same sets of attributes, in any
 // order.

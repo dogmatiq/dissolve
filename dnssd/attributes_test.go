@@ -95,7 +95,7 @@ var _ = Describe("type Attributes", func() {
 				Expect(ok).To(BeFalse())
 			})
 
-			It("returns false the key is a flag", func() {
+			It("returns false if the key is a flag", func() {
 				attrs := NewAttributes().
 					WithFlag("<key>")
 
@@ -399,6 +399,143 @@ var _ = Describe("type Attributes", func() {
 					))
 				}
 			})
+		})
+	})
+})
+
+var _ = Describe("type AttributeCollection", func() {
+	Describe("func Get()", func() {
+		It("returns the associated value", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithPair("<key>", []byte("<value>")),
+			}
+
+			v, ok := col.Get("<key>")
+			Expect(v).To(Equal([]byte("<value>")))
+			Expect(ok).To(BeTrue())
+		})
+
+		It("returns false if there is no such key", func() {
+			col := AttributeCollection{}
+
+			_, ok := col.Get("<key>")
+			Expect(ok).To(BeFalse())
+		})
+
+		It("returns false if the key is a flag", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithFlag("<key>"),
+			}
+
+			_, ok := col.Get("<key>")
+			Expect(ok).To(BeFalse())
+		})
+
+		It("is case insensitive", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithPair("<KEY>", []byte("<value>")),
+			}
+
+			v, ok := col.Get("<key>")
+			Expect(v).To(Equal([]byte("<value>")))
+			Expect(ok).To(BeTrue())
+		})
+
+		It("returns the value from the last / right-most attribute set", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithPair("<key>", []byte("<value-1>")),
+				NewAttributes().
+					WithPair("<key>", []byte("<value-2>")),
+			}
+
+			v, ok := col.Get("<key>")
+			Expect(v).To(Equal([]byte("<value-2>")))
+			Expect(ok).To(BeTrue())
+		})
+	})
+
+	Describe("func Pairs()", func() {
+		It("returns the binary attributes", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithPair("<key-1>", []byte("<value-1>")),
+				NewAttributes().
+					WithPair("<key-2>", nil),
+				NewAttributes().
+					WithFlag("<key-3>"),
+				NewAttributes().
+					WithPair("<key-1>", []byte("<value-2>")),
+			}
+
+			Expect(col.Pairs()).To(Equal(
+				map[string][]byte{
+					"<key-1>": []byte("<value-2>"),
+					"<key-2>": {},
+				},
+			))
+		})
+	})
+
+	Describe("func HasFlags()", func() {
+		DescribeTable(
+			"it returns the expected result",
+			func(expect bool, keys ...string) {
+				col := AttributeCollection{
+					NewAttributes().
+						WithFlag("<key-1>"),
+					NewAttributes().
+						WithFlag("<key-2>"),
+				}
+
+				Expect(col.HasFlags(keys...)).To(Equal(expect))
+			},
+			Entry("no flags", true),
+			Entry("equivalent set", true, "<key-1>", "<key-2>"),
+			Entry("superset", true, "<key-1>"),
+			Entry("subset", false, "<key-1>", "<key-2>", "<key-3>"),
+			Entry("disjoint set", false, "<key-4>", "<key-5>"),
+		)
+
+		It("returns false if the key has a binary value associated with it", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithPair("<key>", []byte("<value>")),
+			}
+
+			Expect(col.HasFlags("<key>")).To(BeFalse())
+		})
+
+		It("is case insensitive", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithFlag("<KEY>"),
+			}
+
+			Expect(col.HasFlags("<key>")).To(BeTrue())
+		})
+	})
+
+	Describe("func Flags()", func() {
+		It("returns the flags that are set", func() {
+			col := AttributeCollection{
+				NewAttributes().
+					WithFlag("<key-1>"),
+				NewAttributes().
+					WithFlag("<key-2>"),
+				NewAttributes().
+					WithPair("<key-3>", []byte("<value>")),
+			}
+
+			Expect(col.Flags()).To(Equal(
+				map[string]struct{}{
+					"<key-1>": {},
+					"<key-2>": {},
+				},
+			))
 		})
 	})
 })
