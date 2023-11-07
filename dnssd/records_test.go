@@ -23,7 +23,7 @@ var _ = Context("DNS records", func() {
 			TargetPort: 12345,
 			Priority:   10,
 			Weight:     20,
-			Attributes: []Attributes{
+			Attributes: AttributeCollection{
 				NewAttributes().
 					WithPair("<key>", []byte("<value>")),
 			},
@@ -220,7 +220,7 @@ var _ = Context("DNS records", func() {
 		})
 
 		It("returns a single empty record if there are only empty attribute collections", func() {
-			instance.Attributes = []Attributes{{}, {}}
+			instance.Attributes = AttributeCollection{{}, {}}
 			rec := NewTXTRecords(instance)
 
 			Expect(rec).To(ConsistOf(

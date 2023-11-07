@@ -315,18 +315,22 @@ func normalizeAttributeKey(k string) (string, error) {
 	return w.String(), nil
 }
 
-// AttributeCollectionsEqual returns true if lhs and rhs contain the same sets
-// of attributes, in any order.
-func AttributeCollectionsEqual(lhs, rhs []Attributes) bool {
-	if len(lhs) != len(rhs) {
+// AttributeCollection is a collection of [Attributes]. Each entry in the slice
+// contains the attributes conveyed in a separate TXT record.
+type AttributeCollection []Attributes
+
+// Equal returns true if c and x contain the same sets of attributes, in any
+// order.
+func (c AttributeCollection) Equal(x AttributeCollection) bool {
+	if len(c) != len(x) {
 		return false
 	}
 
-	visited := make([]bool, len(rhs))
+	visited := make([]bool, len(x))
 
 left:
-	for _, l := range lhs {
-		for i, r := range rhs {
+	for _, l := range c {
+		for i, r := range x {
 			if visited[i] {
 				continue
 			}

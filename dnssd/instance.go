@@ -52,7 +52,7 @@ type ServiceInstance struct {
 	//
 	// An empty slice is a valid representation of an instance with a single
 	// empty TXT record.
-	Attributes []Attributes
+	Attributes AttributeCollection
 
 	// TTL is the time-to-live of the instance's DNS records.
 	TTL time.Duration
@@ -65,6 +65,6 @@ func (i ServiceInstance) Equal(inst ServiceInstance) bool {
 		i.TargetPort == inst.TargetPort &&
 		i.Priority == inst.Priority &&
 		i.Weight == inst.Weight &&
-		AttributeCollectionsEqual(i.Attributes, inst.Attributes) &&
+		i.Attributes.Equal(inst.Attributes) &&
 		i.TTL == inst.TTL
 }

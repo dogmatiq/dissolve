@@ -32,7 +32,7 @@ var _ = Context("UnicastServer", func() {
 			TargetPort: 12345,
 			Priority:   10,
 			Weight:     20,
-			Attributes: []Attributes{
+			Attributes: AttributeCollection{
 				NewAttributes().
 					WithPair("<key>", []byte("<instance-a>")),
 			},
@@ -48,7 +48,7 @@ var _ = Context("UnicastServer", func() {
 			TargetPort: 12345,
 			Priority:   10,
 			Weight:     20,
-			Attributes: []Attributes{
+			Attributes: AttributeCollection{
 				NewAttributes().
 					WithPair("<key>", []byte("<instance-b0>")),
 				NewAttributes().

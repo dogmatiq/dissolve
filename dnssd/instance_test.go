@@ -32,7 +32,7 @@ var _ = Describe("type ServiceInstance", func() {
 					TargetPort: 80,
 					Priority:   10,
 					Weight:     20,
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}).
 							WithFlag("default"),
@@ -49,7 +49,7 @@ var _ = Describe("type ServiceInstance", func() {
 					TargetPort: 80,
 					Priority:   10,
 					Weight:     20,
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}).
 							WithFlag("default"),
@@ -60,7 +60,7 @@ var _ = Describe("type ServiceInstance", func() {
 			Entry(
 				"attributes in a different order",
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}).
 							WithFlag("default"),
@@ -69,7 +69,7 @@ var _ = Describe("type ServiceInstance", func() {
 					},
 				},
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{2}),
 						NewAttributes().
@@ -81,7 +81,7 @@ var _ = Describe("type ServiceInstance", func() {
 			Entry(
 				"multiple copies of the same set of attributes",
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}),
 						NewAttributes().
@@ -89,7 +89,7 @@ var _ = Describe("type ServiceInstance", func() {
 					},
 				},
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}),
 						NewAttributes().
@@ -170,13 +170,13 @@ var _ = Describe("type ServiceInstance", func() {
 			Entry(
 				"different attributes",
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}),
 					},
 				},
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{2}),
 					},
@@ -185,13 +185,13 @@ var _ = Describe("type ServiceInstance", func() {
 			Entry(
 				"different attributes - flag vs empty value",
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("flag", nil),
 					},
 				},
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithFlag("flag"),
 					},
@@ -200,13 +200,13 @@ var _ = Describe("type ServiceInstance", func() {
 			Entry(
 				"different attributes - subset",
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}),
 					},
 				},
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}), // <-- same
 						NewAttributes().
@@ -217,7 +217,7 @@ var _ = Describe("type ServiceInstance", func() {
 			Entry(
 				"different attributes - multiple copies of the same set of attributes",
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}), // <-- same
 						NewAttributes().
@@ -225,7 +225,7 @@ var _ = Describe("type ServiceInstance", func() {
 					},
 				},
 				ServiceInstance{
-					Attributes: []Attributes{
+					Attributes: AttributeCollection{
 						NewAttributes().
 							WithPair("txtvers", []byte{1}), // <-- same
 						NewAttributes().
