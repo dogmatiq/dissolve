@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/miekg/dns v1.1.58
-	github.com/onsi/ginkgo/v2 v2.16.0
+	github.com/onsi/ginkgo/v2 v2.17.0
 	github.com/onsi/gomega v1.31.1
 	golang.org/x/sync v0.6.0
 )
