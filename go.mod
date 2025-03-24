@@ -6,7 +6,7 @@ toolchain go1.23.6
 
 require (
 	github.com/miekg/dns v1.1.63
-	github.com/onsi/ginkgo/v2 v2.23.2
+	github.com/onsi/ginkgo/v2 v2.23.3
 	github.com/onsi/gomega v1.36.2
 	golang.org/x/sync v0.12.0
 )
