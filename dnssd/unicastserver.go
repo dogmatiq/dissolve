@@ -17,6 +17,8 @@ const DefaultUnicastQueryTimeout = 500 * time.Millisecond
 //
 // It does not support recursive DNS queries (i.e, it can not forward requests
 // for unknown domains to upstream DNS servers).
+//
+// It implements the [Advertiser] interface.
 type UnicastServer struct {
 	// Timeout is the amount of time to allow for each DNS query.
 	//
@@ -43,6 +45,8 @@ type UnicastServer struct {
 	records map[string]map[uint16][]dns.RR
 }
 
+var _ Advertiser = (*UnicastServer)(nil)
+
 type serviceRecords struct {
 	typeEnumRecord *dns.PTR
 	instanceCount  int
@@ -54,19 +58,20 @@ type instanceRecords struct {
 }
 
 // Advertise starts advertising a DNS-SD service instance.
-//
-// addresses is a set of optional IP addresses. If provided, the server will
-// also respond with the relevant A and AAAA requests when it receives a query
-// for the hostname in i.TargetHost.
-//
-// Typically, these records would be served by a separate domain name server
-// that is authoratative for the internet domain name used in i.TargetHost.
-func (s *UnicastServer) Advertise(i ServiceInstance, options ...AdvertiseOption) {
-	name := AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain)
-	records := NewRecords(i, options...)
+func (s *UnicastServer) Advertise(
+	_ context.Context,
+	inst ServiceInstance,
+	options ...AdvertiseOption,
+) (bool, error) {
+	name := AbsoluteServiceInstanceName(inst.Name, inst.ServiceType, inst.Domain)
+	records := NewRecords(inst, options...)
 
 	s.m.Lock()
 	defer s.m.Unlock()
+
+	if s.hasRecords(records) {
+		return false, nil
+	}
 
 	if s.instances == nil {
 		s.services = map[string]*serviceRecords{}
@@ -76,14 +81,14 @@ func (s *UnicastServer) Advertise(i ServiceInstance, options ...AdvertiseOption)
 		s.removeInstance(name)
 	}
 
-	enumDomain := AbsoluteInstanceEnumerationDomain(i.ServiceType, i.Domain)
+	enumDomain := AbsoluteInstanceEnumerationDomain(inst.ServiceType, inst.Domain)
 
 	sr, ok := s.services[enumDomain]
 	if ok {
 		sr.instanceCount++
 	} else {
 		sr = &serviceRecords{
-			NewServiceTypePTRRecord(i.ServiceType, i.Domain, 0),
+			NewServiceTypePTRRecord(inst.ServiceType, inst.Domain, 0),
 			1,
 		}
 
@@ -96,22 +101,27 @@ func (s *UnicastServer) Advertise(i ServiceInstance, options ...AdvertiseOption)
 	for _, rr := range records {
 		s.addRecord(rr)
 	}
+
+	return true, nil
 }
 
-// Remove stops advertising a DNS-SD service instance.
-func (s *UnicastServer) Remove(i ServiceInstance) {
-	name := AbsoluteServiceInstanceName(i.Name, i.ServiceType, i.Domain)
+// Unadvertise stops advertising a DNS-SD service instance.
+func (s *UnicastServer) Unadvertise(
+	_ context.Context,
+	inst ServiceInstance,
+) (bool, error) {
+	name := AbsoluteServiceInstanceName(inst.Name, inst.ServiceType, inst.Domain)
 
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	s.removeInstance(name)
+	return s.removeInstance(name), nil
 }
 
-func (s *UnicastServer) removeInstance(name string) {
+func (s *UnicastServer) removeInstance(name string) bool {
 	ir, ok := s.instances[name]
 	if !ok {
-		return
+		return false
 	}
 
 	ir.serviceRecords.instanceCount--
@@ -126,6 +136,8 @@ func (s *UnicastServer) removeInstance(name string) {
 	}
 
 	delete(s.instances, name)
+
+	return true
 }
 
 // addRecord adds a record to the DNS server. It assumes s.m is already locked
@@ -182,6 +194,28 @@ func (s *UnicastServer) removeRecord(rr dns.RR) {
 
 		return
 	}
+}
+
+func (s *UnicastServer) hasRecords(records []dns.RR) bool {
+	for _, rr := range records {
+		if !s.hasRecord(rr) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (s *UnicastServer) hasRecord(rr dns.RR) bool {
+	h := rr.Header()
+
+	for _, x := range s.records[h.Name][h.Rrtype] {
+		if x.String() == rr.String() {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Run runs the server until ctx is canceled or an error occurs.

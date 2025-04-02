@@ -10,6 +10,19 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
+## [Unreleased]
+
+### Added
+
+- Added `dnssd.Advertiser` interface.
+
+### Changed
+
+- **[BC]** Changed the signature of `UnicastServer.Advertise()` to match the
+  `Advertiser` interface.
+- **[BC]** Replaced `UnicastServer.Remove()` method with `Unadvertise()` to
+  match the `Advertiser` interface.
+
 ## [0.4.0] - 2023-11-07
 
 ### Added

@@ -70,18 +70,29 @@ var _ = Context("UnicastServer", func() {
 
 		server = &UnicastServer{}
 
-		server.Advertise(
+		changed, err := server.Advertise(
+			ctx,
 			instanceA,
 			WithServiceSubType("_printer"),
 		)
+		Expect(err).ShouldNot(HaveOccurred())
+		Expect(changed).To(BeTrue())
 
-		server.Advertise(
+		changed, err = server.Advertise(
+			ctx,
 			instanceB,
 			WithIPAddress(net.IPv4(192, 168, 20, 1)),
 			WithIPAddress(net.ParseIP("fe80::1ce5:3c8b:36f:53cf")),
 		)
+		Expect(err).ShouldNot(HaveOccurred())
+		Expect(changed).To(BeTrue())
 
-		server.Advertise(instanceC)
+		changed, err = server.Advertise(
+			ctx,
+			instanceC,
+		)
+		Expect(err).ShouldNot(HaveOccurred())
+		Expect(changed).To(BeTrue())
 	})
 
 	AfterEach(func() {
@@ -132,7 +143,9 @@ var _ = Context("UnicastServer", func() {
 			It("does not include service types for which there are no remaining instances", func() {
 				By("removing one of the two _http._tcp instances")
 
-				server.Remove(instanceA)
+				changed, err := server.Unadvertise(ctx, instanceA)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(changed).To(BeTrue())
 
 				By("asserting that the _http._tcp service type is still included in the response")
 
@@ -147,7 +160,9 @@ var _ = Context("UnicastServer", func() {
 
 				By("removing the last remaining _http._tcp instance")
 
-				server.Remove(instanceB)
+				changed, err = server.Unadvertise(ctx, instanceB)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(changed).To(BeTrue())
 
 				By("asserting that the _http._tcp service type is no longer included in the response")
 
@@ -180,7 +195,9 @@ var _ = Context("UnicastServer", func() {
 			})
 
 			It("does not include service instances that have been removed", func() {
-				server.Remove(instanceA)
+				changed, err := server.Unadvertise(ctx, instanceA)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(changed).To(BeTrue())
 
 				res, _, err := client.ExchangeContext(ctx, req, "127.0.0.1:65353")
 				Expect(err).ShouldNot(HaveOccurred())
@@ -210,7 +227,9 @@ var _ = Context("UnicastServer", func() {
 			})
 
 			It("does not include service instances that have been removed", func() {
-				server.Remove(instanceA)
+				changed, err := server.Unadvertise(ctx, instanceA)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(changed).To(BeTrue())
 
 				res, _, err := client.ExchangeContext(ctx, req, "127.0.0.1:65353")
 				Expect(err).ShouldNot(HaveOccurred())
@@ -256,7 +275,9 @@ var _ = Context("UnicastServer", func() {
 			})
 
 			It("does not include service instances that have been removed", func() {
-				server.Remove(instanceA)
+				changed, err := server.Unadvertise(ctx, instanceA)
+				Expect(err).ShouldNot(HaveOccurred())
+				Expect(changed).To(BeTrue())
 
 				res, _, err := client.ExchangeContext(ctx, req, "127.0.0.1:65353")
 				Expect(err).ShouldNot(HaveOccurred())
@@ -287,7 +308,8 @@ var _ = Context("UnicastServer", func() {
 			})
 
 			It("does not include service instances that have been removed", func() {
-				server.Remove(instanceB)
+				_, err := server.Unadvertise(ctx, instanceB)
+				Expect(err).ShouldNot(HaveOccurred())
 
 				res, _, err := client.ExchangeContext(ctx, req, "127.0.0.1:65353")
 				Expect(err).ShouldNot(HaveOccurred())
@@ -327,6 +349,48 @@ var _ = Context("UnicastServer", func() {
 				Expect(res).NotTo(BeNil())
 				Expect(res.Rcode).To(Equal(dns.RcodeNameError))
 			})
+		})
+	})
+
+	Describe("func Advertise()", func() {
+		It("returns false if the service is already advertised", func() {
+			changed, err := server.Advertise(
+				ctx,
+				instanceC,
+			)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(changed).To(BeFalse())
+		})
+
+		It("returns true if an already-advertised service's records are modified", func() {
+			instanceC.TargetHost = "different-c.example.com"
+
+			changed, err := server.Advertise(
+				ctx,
+				instanceC,
+			)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(changed).To(BeTrue())
+		})
+	})
+
+	Describe("func Unadvertise()", func() {
+		It("returns true if the service is advertised with different records", func() {
+			instanceC.TargetHost = "different-c.example.com"
+
+			changed, err := server.Unadvertise(ctx, instanceC)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(changed).To(BeTrue())
+		})
+
+		It("returns false if the service is not advertised", func() {
+			changed, err := server.Unadvertise(ctx, instanceC)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(changed).To(BeTrue())
+
+			changed, err = server.Unadvertise(ctx, instanceC)
+			Expect(err).ShouldNot(HaveOccurred())
+			Expect(changed).To(BeFalse())
 		})
 	})
 

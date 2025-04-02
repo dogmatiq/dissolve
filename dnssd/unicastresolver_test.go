@@ -73,18 +73,26 @@ var _ = Context("UnicastResolver", func() {
 
 		server = &UnicastServer{}
 
-		server.Advertise(
+		_, err := server.Advertise(
+			ctx,
 			instanceA,
 			WithServiceSubType("_printer"),
 		)
+		Expect(err).ShouldNot(HaveOccurred())
 
-		server.Advertise(
+		_, err = server.Advertise(
+			ctx,
 			instanceB,
 			WithIPAddress(net.IPv4(192, 168, 20, 1)),
 			WithIPAddress(net.ParseIP("fe80::1ce5:3c8b:36f:53cf")),
 		)
+		Expect(err).ShouldNot(HaveOccurred())
 
-		server.Advertise(instanceC)
+		_, err = server.Advertise(
+			ctx,
+			instanceC,
+		)
+		Expect(err).ShouldNot(HaveOccurred())
 
 		serverResult = make(chan error, 1)
 
