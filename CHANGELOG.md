@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 ### Added
 
 - Added `dnssd.Advertiser` interface.
+- Added `route53.Advertiser`, which advertises DNS-SD services via AWS Route 53.
 
 ### Changed
 

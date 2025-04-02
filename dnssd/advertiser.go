@@ -2,6 +2,7 @@ package dnssd
 
 import (
 	"context"
+	"fmt"
 	"net"
 )
 
@@ -19,7 +20,7 @@ type Advertiser interface {
 		options ...AdvertiseOption,
 	) (bool, error)
 
-	// Advertise removes and/or updates DNS records to stop advertising the
+	// Unadvertise removes and/or updates DNS records to stop advertising the
 	// given service instance.
 	//
 	// It true if any changes to DNS records were made, or false if the service
@@ -28,6 +29,20 @@ type Advertiser interface {
 		ctx context.Context,
 		inst ServiceInstance,
 	) (bool, error)
+}
+
+// UnsupportedDomainError is returned by the methods of an [Advertiser] when the
+// advertiser does not support advertising on the service's domain name.
+type UnsupportedDomainError struct {
+	Domain string
+	Cause  error
+}
+
+func (e UnsupportedDomainError) Error() string {
+	if e.Cause != nil {
+		return fmt.Sprintf("cannot advertise DNS-SD service instances on %q domain: %s", e.Domain, e.Cause)
+	}
+	return fmt.Sprintf("cannot advertise DNS-SD service instances on %q domain", e.Domain)
 }
 
 // AdvertiseOption is an option that changes the behavior of how a service
