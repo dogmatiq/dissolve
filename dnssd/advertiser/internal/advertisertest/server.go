@@ -27,7 +27,7 @@ func startServer() (*server, *dnssd.UnicastResolver, error) {
 	}
 
 	host := "127.0.0.1"
-	port := strconv.Itoa(5300 + rand.Intn(100))
+	port := strconv.Itoa(5200 + rand.Intn(100))
 
 	go s.run(host, port)
 

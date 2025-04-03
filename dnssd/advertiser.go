@@ -39,10 +39,16 @@ type UnsupportedDomainError struct {
 }
 
 func (e UnsupportedDomainError) Error() string {
-	if e.Cause != nil {
-		return fmt.Sprintf("cannot advertise DNS-SD service instances on %q domain: %s", e.Domain, e.Cause)
+	message := fmt.Sprintf(
+		"advertising DNS-SD service instances on the %q domain is not supported",
+		e.Domain,
+	)
+
+	if e.Cause == nil {
+		return message
 	}
-	return fmt.Sprintf("cannot advertise DNS-SD service instances on %q domain", e.Domain)
+
+	return fmt.Sprintf("%s: %s", message, e.Cause)
 }
 
 // AdvertiseOption is an option that changes the behavior of how a service

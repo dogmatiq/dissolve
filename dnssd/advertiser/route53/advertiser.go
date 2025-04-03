@@ -20,7 +20,7 @@ type Advertiser struct {
 	Client      *route53.Client
 	PartitionID string
 
-	zones sync.Map
+	zoneIDs sync.Map // map[string]string
 }
 
 // Advertise creates and/or updates DNS records to advertise the given service
@@ -44,7 +44,7 @@ func (a *Advertiser) Advertise(
 
 	cs := &types.ChangeBatch{
 		Comment: aws.String(fmt.Sprintf(
-			"dogmatiq/dissolve: advertising %s instance: %s ",
+			"advertising DNS-SD %s instance: %s ",
 			inst.ServiceType,
 			inst.Name,
 		)),
@@ -81,7 +81,7 @@ func (a *Advertiser) Unadvertise(
 
 	cs := &types.ChangeBatch{
 		Comment: aws.String(fmt.Sprintf(
-			"dogmatiq/dissolve: unadvertising %s instance: %s ",
+			"unadvertising DNS-SD %s instance: %s ",
 			inst.ServiceType,
 			inst.Name,
 		)),
@@ -106,7 +106,7 @@ func (a *Advertiser) lookupZoneID(
 	ctx context.Context,
 	domain string,
 ) (string, error) {
-	if id, ok := a.zones.Load(domain); ok {
+	if id, ok := a.zoneIDs.Load(domain); ok {
 		return id.(string), nil
 	}
 
@@ -118,21 +118,21 @@ func (a *Advertiser) lookupZoneID(
 		},
 	)
 	if err != nil {
-		return "", fmt.Errorf("unable to list AWS Route53 hosted zones: %w", err)
+		return "", fmt.Errorf("unable to list zones: %w", err)
 	}
 
 	if len(out.HostedZones) > 0 {
 		zone := out.HostedZones[0]
 
 		if *zone.Name == domain+"." {
-			id, _ := a.zones.LoadOrStore(domain, *zone.Id)
+			id, _ := a.zoneIDs.LoadOrStore(domain, *zone.Id)
 			return id.(string), nil
 		}
 	}
 
 	return "", dnssd.UnsupportedDomainError{
 		Domain: domain,
-		Cause:  fmt.Errorf("no AWS Route53 hosted zone found for %q", domain),
+		Cause:  fmt.Errorf("no AWS Route53 zone found for %q", domain),
 	}
 }
 
