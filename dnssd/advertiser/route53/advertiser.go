@@ -17,8 +17,7 @@ import (
 // Advertiser is a [dnssd.Advertiser] implementation that advertises DNS-SD service
 // instances on domain names hosted by Amazon Route 53.
 type Advertiser struct {
-	Client      *route53.Client
-	PartitionID string
+	Client *route53.Client
 
 	zoneIDs sync.Map // map[string]string
 }
