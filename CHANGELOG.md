@@ -10,7 +10,15 @@ The format is based on [Keep a Changelog], and this project adheres to
 [keep a changelog]: https://keepachangelog.com/en/1.0.0/
 [semantic versioning]: https://semver.org/spec/v2.0.0.html
 
-## [0.5.1] - 2025-04-03 13:40:52
+## [0.5.2] - 2025-04-08
+
+### Fixed
+
+- `route53.Advertiser` now correctly identifies resource record sets with an
+  identifier created by `dogmatiq/proclaim` before it was updated to use this
+  library for managing DNS records.
+
+## [0.5.1] - 2025-04-03
 
 ### Removed
 
