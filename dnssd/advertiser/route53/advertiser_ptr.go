@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -164,7 +165,16 @@ func indexOf(set types.ResourceRecordSet, inst dnssd.ServiceInstance) int {
 	return -1
 }
 
-const generationPrefix = "dogmatiq/dissolve:generation="
+// generationPrefix is the prefix to append to the numeric generation number
+// when encoding it in the SetIdentifier field of a Route 53 resource record
+// set.
+const generationPrefix = "dnssd:generation"
+
+// legacyGenerationPrefixPattern is the regular expression that matches the
+// prefix used by older implementations (notably, the dogmatiq/proclaim
+// repository) to encode the generation number in the SetIdentifier field of a
+// Route 53 resource record set.
+var legacyGenerationPrefixPattern = regexp.MustCompile("^dogmatiq(/[a-z]+):generation$")
 
 // marshalGeneration returns a string representation of the given generation
 // number suitable for being encoded in the SetIdentifier field of a Route 53
@@ -173,7 +183,7 @@ const generationPrefix = "dogmatiq/dissolve:generation="
 // Encoding the generation here allows us to identify resource record sets with
 // the same name and type by their generation (version).
 func marshalGeneration(n uint64) *string {
-	return aws.String(fmt.Sprintf("%s%d", generationPrefix, n))
+	return aws.String(fmt.Sprintf("%s=%d", generationPrefix, n))
 }
 
 // unmarshalGeneration returns the generation number encoded in the
@@ -183,14 +193,18 @@ func unmarshalGeneration(gen *string) (uint64, error) {
 		return 0, errors.New("missing rr-set generation")
 	}
 
-	v, ok := strings.CutPrefix(*gen, generationPrefix)
+	prefix, number, ok := strings.Cut(*gen, "=")
 	if !ok {
-		return 0, fmt.Errorf("invalid rr-set generation %q: missing prefix", *gen)
+		return 0, fmt.Errorf("invalid rr-set generation %q: missing '='", *gen)
 	}
 
-	n, err := strconv.ParseUint(v, 10, 64)
+	if prefix != generationPrefix && !legacyGenerationPrefixPattern.MatchString(prefix) {
+		return 0, fmt.Errorf("invalid rr-set generation %q: unexpected key before '='", *gen)
+	}
+
+	n, err := strconv.ParseUint(number, 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("invalid rr-set generation %q: invalid counter component", *gen)
+		return 0, fmt.Errorf("invalid rr-set generation %q: invalid generation number: %w", *gen, err)
 	}
 
 	return n, nil
