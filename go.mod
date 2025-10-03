@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.58.3
 	github.com/dnsimple/dnsimple-go/v4 v4.0.0
 	github.com/miekg/dns v1.1.68
-	github.com/onsi/ginkgo/v2 v2.25.3
+	github.com/onsi/ginkgo/v2 v2.26.0
 	github.com/onsi/gomega v1.38.2
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
 	golang.org/x/sync v0.17.0
