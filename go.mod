@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.59.1
 	github.com/dnsimple/dnsimple-go/v4 v4.0.0
 	github.com/miekg/dns v1.1.68
-	github.com/onsi/ginkgo/v2 v2.27.1
+	github.com/onsi/ginkgo/v2 v2.27.2
 	github.com/onsi/gomega v1.38.2
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
 	golang.org/x/sync v0.17.0
@@ -26,7 +26,6 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20250820193118-f64d9cf942d6 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/net v0.43.0 // indirect
