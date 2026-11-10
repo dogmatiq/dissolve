@@ -3,7 +3,7 @@ module github.com/dogmatiq/dissolve
 go 1.26.0
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.47.7
+	github.com/aws/aws-sdk-go-v2 v1.47.8
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.70.8
 	github.com/dnsimple/dnsimple-go/v4 v4.0.0
 	github.com/miekg/dns v1.1.73
