@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.48.0
-	github.com/aws/aws-sdk-go-v2/service/route53 v1.71.0
+	github.com/aws/aws-sdk-go-v2/service/route53 v1.72.0
 	github.com/dnsimple/dnsimple-go/v4 v4.0.0
 	github.com/miekg/dns v1.1.73
 	github.com/onsi/ginkgo/v2 v2.34.0
